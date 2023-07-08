@@ -43,6 +43,6 @@ export function InviteURL(guildId, state) {
 
 export function LoginURL(state, token) {
 	return `https://discord.com/api/oauth2/authorize?client_id=${process.env.CLIENT_ID}&redirect_uri=${
-		publicRuntimeConfig.NODE_ENV === "production" ? "https://javking.herokuapp.com/login-callback/" + token : process.env.CLIENT_REDIRECT
+		publicRuntimeConfig.NODE_ENV === "production" ? "https://javking.herokuapp.com/login-callback/?uuid=" + token : process.env.CLIENT_REDIRECT
 	}&response_type=code&scope=identify%20guilds&state=${state}`;
 }
