@@ -45,8 +45,8 @@ function Header() {
 	];
 
 	useEffect(() => {
-		if (Cookie("userId")) {
-			fetch(URL("guild-member-data", Cookie("userId")))
+		if (token) {
+			fetch(URL("guild-member-data", token))
 				.then((response) => response.json())
 				.then((data) => {
 					setUser(data);
