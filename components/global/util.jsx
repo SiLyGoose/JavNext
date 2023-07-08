@@ -1,4 +1,5 @@
 import moment from "moment";
+import fetch from "node-fetch";
 
 export function humanizeMs(durationMs) {
 	const duration = moment.utc(durationMs);
@@ -42,4 +43,10 @@ export function updateStyle(ref, property, value) {
 
 export function JSONify(event, data) {
 	return JSON.stringify({ event, data });
+}
+
+export async function getIdentifier() {
+	const response = await fetch('/api/getToken');
+	const data = await response.json();
+	return data.token;
 }

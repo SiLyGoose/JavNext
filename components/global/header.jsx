@@ -12,8 +12,8 @@ import Link from "next/link";
 import { clsx } from "clsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightFromBracket, faUserGroup } from "@fortawesome/free-solid-svg-icons";
-import { useLoginStatus } from "./login/LoginStatus";
 import { useRouter } from "next/router";
+import { useToken } from "./token/TokenContext";
 
 // cache to allow quicker load times and less computing/fetching
 // import useSWR from "swr";
@@ -21,6 +21,7 @@ import { useRouter } from "next/router";
 
 function Header() {
 	const router = useRouter();
+	const token = useToken();
 
 	// const { isLoggedIn, setIsLoggedIn } = useLoginStatus();
 
@@ -44,12 +45,12 @@ function Header() {
 	];
 
 	useEffect(() => {
-		if (Cookie("userId") /*&& !isLoggedIn*/) {
+		if (Cookie("userId")) {
 			fetch(URL("guild-member-data", Cookie("userId")))
 				.then((response) => response.json())
 				.then((data) => {
 					setUser(data);
-					// setIsLoggedIn(true);
+					setIsLoggedIn(true);
 				})
 				.catch(console.error);
 		}
@@ -80,7 +81,7 @@ function Header() {
 			window.removeEventListener("resize", handleResize);
 			document.removeEventListener("click", handleClickOutside);
 		};
-	}, []);
+	}, [token]);
 
 	// handle hover states for multiple objects
 	// const handleMouseEnter = (index) => {
@@ -150,7 +151,7 @@ function Header() {
 	const createHollowUser = () => {
 		return (
 			<div className={`${styles.buttonComponentHollow} ${styles.buttonComponentRound} ${styles.sizeDfButton}`}>
-				<a className={styles.buttonTag} href={LoginURL(router.asPath)}>
+				<a className={styles.buttonTag} href={LoginURL(router.asPath, token)}>
 					<span className={styles.buttonContent}>Login</span>
 				</a>
 			</div>
@@ -186,7 +187,11 @@ function Header() {
 					<ul className={`${styles.menuDropdownWrapper} ${styles.menuItem}`}>
 						{routeItems.map((item, index) => (
 							<li key={item.id}>
-								<Link className={`${utilStyles.fontType2} ${styles.dropdownItem}`} href={router.asPath.includes('javstation') ? '/javstudio' : item.href} onClick={index === 1 ? handleLogout : undefined}>
+								<Link
+									className={`${utilStyles.fontType2} ${styles.dropdownItem}`}
+									href={router.asPath.includes("javstation") ? "/javstudio" : item.href}
+									onClick={index === 1 ? handleLogout : undefined}
+								>
 									<Span Px={18}>
 										<FontAwesomeIcon alt={item.label} icon={item.icon} className={styles.svgIcon} />
 									</Span>

@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 
 // loading screen component
 import Loading from "../components/global/loading";
-import { LoginStatusProvider } from "../components/global/login/LoginStatus";
+import { TokenProvider } from "../components/global/token/TokenContext";
 
 // import { library } from '@fortawesome/fontawesome-svg-core'
 // import { faRightFromBracket, faUserGroup } from '@fortawesome/free-solid-svg-icons'
@@ -50,13 +50,13 @@ const App = ({ Component, pageProps }) => {
 	}, []);
 
 	return (
-		<LoginStatusProvider>
+		<TokenProvider>
 			<Head>
 				<title>JavKing</title>
 			</Head>
 			<Component {...pageProps} />
 			<Loading isLoading={isLoading} />
-		</LoginStatusProvider>
+		</TokenProvider>
 	);
 };
 
