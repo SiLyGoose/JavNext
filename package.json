@@ -5,8 +5,8 @@
   "license": "MIT",
   "proxy": "http://localhost:3080",
   "engines": {
-    "yarn": ">=1.22.19",
-    "node": ">=18.16.0"
+    "yarn": "1.22.19",
+    "node": "18.16.0"
   },
   "dependencies": {
     "@babel/core": "^7.22.5",
