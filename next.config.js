@@ -4,6 +4,11 @@ module.exports = {
 	typescript: {
 		ignoreBuildErrors: true,
 	},
+	publicRuntimeConfig: {
+		PORT: process.env.PORT,
+		CLIENT_BASE_URL: process.env.CLIENT_BASE_URL,
+		NODE_ENV: process.env.NODE_ENV,
+	},
 	env: {
 		SERVER_URL: "http://localhost/",
 		SOCKET_URL: "http://localhost:3080",

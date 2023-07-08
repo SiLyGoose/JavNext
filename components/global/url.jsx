@@ -1,3 +1,6 @@
+import getConfig from "next/config";
+const { publicRuntimeConfig } = getConfig();
+
 export function URL(path, ...body) {
 	var returnURL = path.concat("/");
 
@@ -31,9 +34,13 @@ export function WS_URL(path, ...body) {
 }
 
 export function InviteURL(guildId, state) {
-	return `https://discord.com/oauth2/authorize?client_id=${process.env.CLIENT_ID}&guild_id=${guildId}&permissions=37055488&scope=bot&response_type=code&redirect_url=${process.env.SERVER_URL || process.env.BOT_SITE}/${state}`;
+	return `https://discord.com/oauth2/authorize?client_id=${process.env.CLIENT_ID}&guild_id=${guildId}&permissions=37055488&scope=bot&response_type=code&redirect_url=${
+		process.env.SERVER_URL || process.env.BOT_SITE
+	}/${state}`;
 }
 
 export function LoginURL(state) {
-	return `https://discord.com/api/oauth2/authorize?client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.CLIENT_REDIRECT}&response_type=code&scope=identify%20guilds&state=${state}`;
+	return `https://discord.com/api/oauth2/authorize?client_id=${process.env.CLIENT_ID}&redirect_uri=${
+		publicRuntimeConfig.NODE_ENV === "production" ? "https://javking.herokuapp.com/login-callback" : process.env.CLIENT_REDIRECT
+	}&response_type=code&scope=identify%20guilds&state=${state}`;
 }
