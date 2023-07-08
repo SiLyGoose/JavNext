@@ -1,0 +1,138 @@
+.canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1000;
+    opacity: 0.1;
+    top: 0;
+    left: 0;
+}
+
+.loaderContainer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #ddaedb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+}
+
+.loaderWrapper {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    border: 4px solid #Fff;
+    animation: loader 2s infinite ease;
+}
+
+.loader {
+	vertical-align: top;
+    display: inline-block;
+    width: 100%;
+    background-color: #fff;
+    animation: loader-inner 2s infinite ease-in;
+}
+
+.fadeOut {
+    opacity: 0;
+    z-index: -1001;
+    transition: opacity 0.5s ease-out 0.5s, z-index 0.5s ease-out 1s;
+}
+
+@keyframes loader {
+    0% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(180deg);
+    }
+    50% {
+        transform: rotate(180deg);
+    }
+    75% {
+        transform: rotate(360deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes loader-inner {
+    0% {
+        height: 0%;
+    }
+    25% {
+        height: 0%;
+    }
+    50% {
+        height: 100%;
+    }
+    75% {
+        height: 100%;
+    }
+    100% {
+        height: 0%;
+    }
+}
+
+@-moz-keyframes slide
+/* Firefox */
+
+    {
+    from {
+        height: 0;
+    }
+    to {
+        height: 300px;
+    }
+}
+
+@-webkit-keyframes slide
+/* Safari and Chrome */
+
+    {
+    from {
+        height: 0;
+    }
+    to {
+        height: 300px;
+    }
+}
+
+@-o-keyframes slide
+/* Opera */
+
+    {
+    from {
+        height: 0;
+    }
+    to {
+        height: 300px;
+    }
+}
+
+@-ms-keyframes slide
+/* IE10 */
+
+    {
+    from {
+        height: 0;
+    }
+    to {
+        height: fit-content;
+    }
+}
+
+@keyframes slide {
+    0% {
+        height: 0;
+    }
+    100% {
+        height: auto;
+    }
+}

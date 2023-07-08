@@ -1,0 +1,113 @@
+.main {
+	padding: 50px;
+	background-color: transparent;
+	box-shadow: none;
+	color: #fff;
+	width: 100%;
+	z-index: 1;
+}
+
+.discordInviteButton {
+	color: #fff;
+	background-color: #7289da;
+	border-color: #7289da;
+}
+
+.mainButton > button {
+	transform: scale(1);
+	-webkit-transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease;
+	-moz-transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease;
+	transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease;
+}
+
+.mainButton > button:hover {
+	transform: scale(1.1);
+}
+
+.mainButton:last-child > button {
+	color: black;
+	background: #fff;
+	-webkit-transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease, background-color 0.3s ease;
+	-moz-transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease, background-color 0.3s ease;
+	transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease, background-color 0.3s ease;
+}
+
+.mainButton:not(:last-child) > button {
+	color: #fff;
+	background-color: #7289da;
+	border-color: #7289da;
+	-webkit-transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease, background-color 0.3s ease;
+	-moz-transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease, background-color 0.3s ease;
+	transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease, background-color 0.3s ease;
+}
+
+.mainButton:last-child > button:hover {
+	color: #fff;
+	background-color: rgb(65, 65, 65);
+	border-color: rgb(65, 65, 65);
+}
+
+.mainButton:not(:last-child) > button:hover {
+	background-color: rgb(99, 130, 230);
+	border-color: rgb(99, 130, 230);
+}
+
+.container {
+	animation: float 6s ease-in-out infinite;
+}
+
+/* @media screen and (min-width: 720px) {
+    .mainButton {
+        max-width: 70%;
+    }
+}
+
+@media screen and (min-width: 960px) {
+	.mainButton {
+		max-width: 45%;
+	}
+} */
+
+@media screen and (max-width: 600px) {
+	.mainButton {
+		margin-bottom: 1rem !important;
+	}
+}
+
+/* @media screen and (min-width: 1024px) {
+    .mainButton {
+        max-width: 35%;
+    }
+} */
+
+@media only screen and (min-width: 1024px) {
+
+}
+
+
+@media screen and (min-width: 1440px) {
+	.mainButton {
+		max-width: 30%;
+	}
+}
+
+@media screen and (min-width: 2560px) {
+	.mainButton {
+		max-width: 25%;
+	}
+}
+
+@keyframes float {
+	0% {
+		/* box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6); */
+		transform: translatey(0px);
+	}
+	50% {
+		/* box-shadow: 0 25px 15px 0px rgba(0,0,0,0.2); */
+		transform: translatey(-20px);
+	}
+	100% {
+		/* box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6); */
+		transform: translatey(0px);
+	}
+}

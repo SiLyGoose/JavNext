@@ -1,0 +1,29 @@
+// type Element = {
+// 	x: number,
+// 	y: number,
+// 	r: number,
+// 	w: number,
+// 	dx: number,
+// 	dy: number,
+// 	dr?: number,
+// 	draw: (ctx: CanvasRenderingContext2D, t: number) => void,
+// };
+
+// type Preset = {
+// 	o: (x: number, y: number, s: number, dx: number, dy: number) => Element,
+// 	x: (x: number, y: number, s: number, dx: number, dy: number, dr?: number, r?: number) => Element,
+// };
+
+function BackgroundEffect() {
+	// const CanvasRef = useRef < HTMLCanvasElement > null;
+	const CanvasRef = useRef(null);
+
+	useEffect(() => {
+		const Canvas = CanvasRef.current;
+		if (!Canvas) return;
+
+		const ctx = Canvas.getContext("2d");
+		// let elements: Element[] = [];
+		let elements = [];
+
+		// const presets: Preset = {

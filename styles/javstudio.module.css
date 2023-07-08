@@ -1,0 +1,104 @@
+.main {
+    max-width: 200px;
+}
+
+.headingSub {
+    position: relative;
+}
+
+.headingSub:after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    -webkit-transform: translate(-50%);
+    -moz-transform: translate(-50%);
+    transform: translate(-50%);
+    bottom: 0;
+    width: 36px;
+    border: 2px solid #d15e8f;
+    border-radius: 2px;
+}
+
+.serverList {
+    border-top: 1px solid #473c54;
+    padding-top: 5px;
+    margin-top: 16px;
+}
+
+.roomTag {
+    background-color: #d185cd;
+    border: 2px solid #d185cd;
+}
+
+.addTag {
+    /* alt background-color: #352b3f; */
+    background-color: transparent;
+    border: 2px solid #fff;
+}
+
+.roomTag,
+.addTag {
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 18px;
+    outline: none;
+    transform: scaleX(1);
+    transition: all 0.2s ease-out;
+}
+
+.roomTagAdjust {
+    padding: 12px 30px;
+}
+
+a.roomTag:hover,
+a.addTag:hover {
+    color: #fff;
+    transform: scaleX(1.04);
+}
+
+a.roomTag:hover {
+    background-color: #9e599c;
+    border-color: #9e599c;
+}
+
+a.addTag:hover {
+    background-color: #6e3f6d;
+}
+
+.iconComponent {
+    height: 16px;
+    width: 16px;
+    margin-left: 4px;
+}
+
+.icon {
+    fill: currentColor;
+    height: 100%;
+    width: 100%;
+    overflow: hidden!important;
+}
+
+.authenticationComponent {
+    padding: 32px 20px;
+    border-radius: 16px;
+    background-color: #2c2a31;
+    min-width: 300px;
+    max-width: 550px;
+}
+
+@media screen and (min-width: 1024px) {
+    .container {
+        max-height: 100%;
+        max-width: 740px;
+        padding: 24px 96px;
+        border-radius: 8px;
+        background: #2c2a31;
+    }
+
+    .serverList {
+        scrollbar-width: thin;
+        scrollbar-color: #0e0e0f #0e0e0f;
+        padding: 0 10px;
+        overflow: auto;
+    }
+}

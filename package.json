@@ -1,0 +1,60 @@
+{
+  "name": "JavKing",
+  "version": "1.0.0",
+  "main": "index.jsx",
+  "license": "MIT",
+  "proxy": "http://localhost:3080",
+  "engines": {
+    "yarn": ">=1.22.19",
+    "node": ">=18.16.0"
+  },
+  "dependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/preset-env": "^7.22.5",
+    "@babel/preset-react": "^7.22.5",
+    "@fortawesome/fontawesome-svg-core": "^6.4.0",
+    "@fortawesome/free-brands-svg-icons": "^6.4.0",
+    "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "autoprefixer": "^10.4.14",
+    "babel-plugin-macros": "^3.1.0",
+    "bootstrap": "^5.3.0",
+    "clsx": "^1.2.1",
+    "cookie": "^0.5.0",
+    "cors": "^2.8.5",
+    "dotenv-flow": "^3.2.0",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "jimp": "^0.22.8",
+    "jquery": "^3.7.0",
+    "jsdom": "^20.0.0",
+    "moment": "^2.29.4",
+    "next": "^13.4.6",
+    "node-fetch": "2.6.1",
+    "nodemon": "^2.0.18",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-palette": "^1.0.2",
+    "socket.io": "^4.7.0",
+    "socket.io-client": "^4.7.1",
+    "swr": "^2.1.5",
+    "tailwindcss": "^3.3.2",
+    "uuid": "^9.0.0"
+  },
+  "scripts": {
+    "dev": "node server.js",
+    "build": "next build && next export",
+    "start": "node .next/standalone/server.js",
+    "prod": "next build && node .next/standalone/server.js"
+  },
+  "author": "Zeiu",
+  "devDependencies": {
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.12",
+    "typescript": "5.1.3"
+  },
+  "cacheDirectories": [
+    ".next/cache"
+  ]
+}

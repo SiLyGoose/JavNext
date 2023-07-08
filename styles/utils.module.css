@@ -1,0 +1,190 @@
+/* utility class (text styles) that can be re-used across multiple components */
+.fontType14 {
+	font-family: Poppins, sans-serif;
+	font-size: 10px;
+	font-weight: 400;
+	line-height: 1.5;
+	font-style: normal;
+	letter-spacing: normal;
+}
+
+.fontType1,
+.fontType11,
+.fontType12 {
+	font-family: Poppins, sans-serif;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.5;
+	font-style: normal;
+	letter-spacing: normal;
+}
+
+.fontType2 {
+	font-family: Poppins, sans-serif;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.5;
+	font-style: normal;
+	letter-spacing: normal;
+}
+
+.fontType3,
+.fontType7,
+.fontType13 {
+	font-family: Poppins, sans-serif;
+	line-height: 1.5;
+	font-style: normal;
+	letter-spacing: normal;
+	font-size: 16px;
+	font-weight: 400;
+}
+
+.fontType4 {
+	font-family: Poppins, sans-serif;
+	line-height: 1.5;
+	font-style: normal;
+	letter-spacing: normal;
+	font-size: 18px;
+	font-weight: 400;
+}
+
+.fontType5,
+.fontType6,
+.fontType15 {
+	font-family: Poppins, sans-serif;
+	line-height: 1.5;
+	font-style: normal;
+	letter-spacing: normal;
+	font-size: 20px;
+	font-weight: 400;
+}
+
+.fontType8 {
+	font-family: Poppins, sans-serif;
+	line-height: 1.5;
+	font-style: normal;
+	letter-spacing: normal;
+	font-size: 22px;
+	font-weight: 400;
+}
+
+.fontType9 {
+	font-family: Poppins, sans-serif;
+	line-height: 1.5;
+	font-style: normal;
+	letter-spacing: normal;
+	font-size: 24px;
+	font-weight: 400;
+}
+
+.fontType10 {
+	font-family: Poppins, sans-serif;
+	line-height: 1.5;
+	font-style: normal;
+	letter-spacing: normal;
+	font-size: 2rem;
+	font-weight: 300;
+}
+
+.fontAdjust1 {
+	font-size: 6rem;
+	font-weight: 300;
+	line-height: 1.2;
+	color: #ddaedb;
+	filter: drop-shadow(0 0 5px black);
+}
+
+.fontAdjust2 {
+	letter-spacing: 1.5px;
+}
+
+.fontAdjust3 {
+	letter-spacing: 3.2px;
+}
+
+.colorAdjust1 {
+	color: #ada5b6 !important;
+}
+
+.colorAdjust2 {
+	color: #e0dde4 !important;
+}
+
+@media screen and (max-width: 600px) {
+	.fontAdjust1 {
+		font-size: 3rem;
+	}
+
+	.fontAdjust2 {
+		font-size: 1rem;
+	}
+}
+
+@media screen and (min-width: 600px) {
+	.fontAdjust1 {
+		font-size: 4rem;
+	}
+
+	.fontType1,
+	.fontType3 {
+		font-size: 15px;
+	}
+}
+
+@media only screen and (max-width: 1024px) {
+	.fontType7 {
+		font-size: 15px;
+	}
+}
+
+@media only screen and (min-width: 1024px) {
+	.fontType12 {
+		font-size: 14px;
+	}
+
+	.fontType2 {
+		font-size: 16px;
+	}
+
+	.fontType3 {
+		font-size: 17px;
+	}
+
+	.fontType6,
+	.fontType7 {
+		font-size: 16px;
+	}
+
+	.fontType13 {
+		font-size: 20px;
+	}
+
+	.fontType8,
+	.fontType15 {
+		font-size: 24px;
+	}
+
+	.fontType9 {
+		font-size: 32px;
+	}
+}
+
+@media screen and (min-width: 1440px) {
+	.fontType2 {
+		font-size: 16px;
+	}
+
+	.fontType3 {
+		font-size: 20px;
+	}
+}
+
+@media screen and (min-width: 2560px) {
+	.fontAdjust1 {
+		font-size: 6rem;
+	}
+
+	.fontType3 {
+		font-size: 20px;
+	}
+}
