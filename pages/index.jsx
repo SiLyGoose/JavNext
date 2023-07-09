@@ -40,7 +40,7 @@ function Home() {
 						{mainItems.map((item) => (
 							<div key={item.id} className={`${styles.mainButton} col-lg-6 col-md-8 col-sm-8 mb-sm-3`}>
 								<button type="button" className="btn btn-group btn-lg btn-mobfull btn-block justify-content-center">
-									<a href={item.href} className="">
+									<a href={item.href}>
 										<div className="d-flex align-items-center">
 											<FontAwesomeIcon icon={item.icon} className="my-auto" />
 											<span className={`pl-2 ${utilStyles.fontType3}`}>{item.label}</span>
