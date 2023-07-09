@@ -1,7 +1,22 @@
 import getConfig from "next/config";
 const { publicRuntimeConfig } = getConfig();
 
-export function URL(path, ...body) {
+export function Q_URL(base, ...body) {
+	base = base.concat("?");
+
+	if (typeof body[0] === "object") {
+		for (let i = 0; i < body.length; i++) {
+			base += Object.entries(body[i])
+				.map(([key, value]) => `${key}=${value}`)
+				.join("&");
+		}
+	} else {
+		base = base.concat(body.join("/"));
+	}
+	return base;
+}
+
+export function API_URL(path, ...body) {
 	var returnURL = path.concat("/");
 
 	if (typeof body[0] === "object") {

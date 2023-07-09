@@ -2,7 +2,7 @@ import { Span } from "./span";
 import Image from "./image";
 import Cookie from "./cookie";
 import { userIcon } from "./icon";
-import { LoginURL, URL } from "./url";
+import { LoginURL, API_URL } from "./url";
 
 import utilStyles from "../../styles/utils.module.css";
 import styles from "../../styles/header.module.css";
@@ -46,7 +46,7 @@ function Header() {
 
 	useEffect(() => {
 		if (token) {
-			fetch(URL("guild-member-data", token))
+			fetch(API_URL("guild-member-data", token))
 				.then((response) => response.json())
 				.then((data) => {
 					setUser(data);
@@ -159,7 +159,7 @@ function Header() {
 	};
 
 	const handleLogout = () => {
-		fetch(URL("remove-guild-member", token), { method: "DELETE" })
+		fetch(API_URL("remove-guild-member", token), { method: "DELETE" })
 			.then((response) => {
 				if (!response.ok) throw new Error("Unable to log user out", { cause: response });
 				setUser(null);

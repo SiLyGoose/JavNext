@@ -3,7 +3,7 @@ import utilStyles from "../../styles/utils.module.css";
 
 import Canvas from "../../components/global/canvas";
 import Header from "../../components/global/header";
-import { URL } from "../../components/global/url";
+import { API_URL } from "../../components/global/url";
 import Cookie from "../../components/global/cookie";
 import { Span } from "../../components/global/span";
 import Image from "../../components/global/image";
@@ -176,7 +176,7 @@ function JavStation() {
 
 		setSocket(socketWrapper);
 
-		fetch(URL("guild-member-data", token))
+		fetch(API_URL("guild-member-data", token))
 			.then((response) => response.json())
 			.then((data) => {
 				const {
@@ -191,7 +191,7 @@ function JavStation() {
 				setMutualList([]);
 			});
 
-		fetch(URL("voice-member-data", { token, stationId }))
+		fetch(API_URL("voice-member-data", { token, stationId }))
 			.then((response) => response.json())
 			.then((data) => {
 				const { userChannel, botChannel } = data;

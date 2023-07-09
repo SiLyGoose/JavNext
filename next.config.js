@@ -8,7 +8,6 @@ module.exports = {
 		CLIENT_ID: process.env.CLIENT_ID,
 		CLIENT_OAUTH_REDIRECT: process.env.CLIENT_OAUTH_REDIRECT,
 		CLIENT_REDIRECT: process.env.CLIENT_REDIRECT,
-		CLIENT_SECRET: process.env.CLIENT_SECRET,
 
 		NODE_ENV: process.env.NODE_ENV,
 

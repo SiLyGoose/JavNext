@@ -1,6 +1,5 @@
 import styles from "../../styles/header.module.css";
 import Jimp from "jimp";
-import { URL } from "./url";
 
 import React from "react";
 

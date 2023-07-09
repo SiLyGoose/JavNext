@@ -5,7 +5,7 @@ import studioStyles from "../styles/javstudio.module.css";
 import Cookie from "../components/global/cookie";
 import Canvas from "../components/global/canvas";
 import Header from "../components/global/header";
-import { InviteURL, LoginURL, URL } from "../components/global/url";
+import { InviteURL, LoginURL, API_URL } from "../components/global/url";
 import { Span } from "../components/global/span";
 import Image from "../components/global/image";
 import { guildIcon } from "../components/global/icon";
@@ -30,7 +30,7 @@ function JavStudio() {
 		const maxItems = window.innerHeight >= 1080 ? 10 + 3 * (heightTiers.findIndex((x) => x <= window.innerHeight) + 1) : 10;
 
 		if (Cookie("userId")) {
-			fetch(URL("guild-member-data", Cookie("userId")))
+			fetch(API_URL("guild-member-data", Cookie("userId")))
 				.then((response) => response.json())
 				.then((data) => {
 					setUser(data);
