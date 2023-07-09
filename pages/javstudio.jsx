@@ -16,9 +16,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core";
 import { useRouter } from "next/router";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
+import { useToken } from "../components/global/token/TokenContext";
 
 function JavStudio() {
 	const router = useRouter();
+	const token = useToken();
 	const [guildList, setGuildList] = useState([]);
 
 	const [user, setUser] = useState(null);
@@ -29,8 +31,8 @@ function JavStudio() {
 		// maxItems = (base) 10 + (base scale) 3 * (resolution tier scale for vertical monitors) heightTiers
 		const maxItems = window.innerHeight >= 1080 ? 10 + 3 * (heightTiers.findIndex((x) => x <= window.innerHeight) + 1) : 10;
 
-		if (Cookie("userId")) {
-			fetch(API_URL("guild-member-data", Cookie("userId")))
+		if (token) {
+			fetch(API_URL("guild-member-data", token))
 				.then((response) => response.json())
 				.then((data) => {
 					setUser(data);
