@@ -151,7 +151,7 @@ function Header() {
 	const createHollowUser = () => {
 		return (
 			<div className={`${styles.buttonComponentHollow} ${styles.buttonComponentRound} ${styles.sizeDfButton}`}>
-				<a className={styles.buttonTag} href={LoginURL(router.asPath, token)}>
+				<a className={styles.buttonTag} href={LoginURL(router.asPath)}>
 					<span className={styles.buttonContent}>Login</span>
 				</a>
 			</div>
