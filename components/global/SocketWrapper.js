@@ -1,4 +1,7 @@
 import { io } from "socket.io-client";
+import getConfig from "next/config";
+
+const { publicRuntimeConfig } = getConfig();
 
 export class SocketWrapper {
 	constructor(userId, stationId) {
@@ -7,7 +10,7 @@ export class SocketWrapper {
         
 		// unique socket identification
 		this.sid = { u: userId, s: stationId };
-		this.socket = io(process.env.NODE_ENV === "production" ? process.env.HOST + process.env.PORT : process.env.SOCKET_URL, { query: this.sid });
+		this.socket = io(publicRuntimeConfig.SOCKET_URL, { query: this.sid });
 	}
 
 	createEmit(op) {
