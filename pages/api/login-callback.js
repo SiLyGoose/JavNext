@@ -6,8 +6,10 @@ const { publicRuntimeConfig } = getConfig();
 
 // export default function handleLoginCallback(req: NextApiRequest, res: NextApiResponse)
 export default function handleLoginCallback(req, res) {
-	const { code, state } = req.query;
-	const token = useToken();
+	const {
+		query: { code, state },
+		cookies: { token },
+	} = req;
 
 	const requestBody = new URLSearchParams({
 		client_id: publicRuntimeConfig.CLIENT_ID,

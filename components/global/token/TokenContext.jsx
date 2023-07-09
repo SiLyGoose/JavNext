@@ -18,4 +18,6 @@ export const TokenProvider = ({ children }) => {
 	return <TokenContext.Provider value={token}>{children}</TokenContext.Provider>;
 };
 
-export const useToken = () => {return useContext(TokenContext);}
+export const useToken = () => {
+	return useContext(TokenContext);
+};
