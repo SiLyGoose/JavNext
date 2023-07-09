@@ -184,9 +184,9 @@ function JavStation() {
 				} = data;
 				setMutualList(mutualList);
 			})
-			.catch((e) => {
-				console.error(e);
-				setMutualList([]);
+			.catch((error) => {
+				console.error(error);
+				router.replace("/javstudio");
 			});
 
 		fetch(API_URL("voice-member-data", { token, stationId }))

@@ -31,12 +31,9 @@ function JavStudio() {
 		// maxItems = (base) 10 + (base scale) 3 * (resolution tier scale for vertical monitors) heightTiers
 		const maxItems = window.innerHeight >= 1080 ? 10 + 3 * (heightTiers.findIndex((x) => x <= window.innerHeight) + 1) : 10;
 
-		console.log(token)
 		if (token) {
 			fetch(API_URL("guild-member-data", token))
-				.then((response) => {
-					console.log(response)
-					return response.json()})
+				.then((response) => response.json())
 				.then((data) => {
 					setUser(data);
 					let {
