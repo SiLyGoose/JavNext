@@ -12,7 +12,7 @@ module.exports = {
 		REDIRECT_URI: process.env.REDIRECT_URI,
 	},
 	env:
-		process.env.NODE_ENV === "production"
+		process.env.NODE_ENV !== "production"
 			? {
 					SERVER_URL: "http://localhost/",
 					SOCKET_URL: "http://localhost:3080",
