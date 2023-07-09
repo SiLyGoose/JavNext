@@ -12,12 +12,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faDiscord } from "@fortawesome/free-brands-svg-icons";
 
 import React from "react";
+import { InviteURL } from "../components/global/url";
 
 function Home() {
 	// bootstrap5 wtf?
 	// using bootstrap4
 	const mainItems = [
-		{ id: "mainBtnDiscord", label: "Add to Discord", href: "https://discord.gg/EXQn6bcqGv", icon: faDiscord },
+		{ id: "mainBtnDiscord", label: "Add to Discord", href: InviteURL(), icon: faDiscord },
 		{ id: "mainBtnGithub", label: "GitHub Repository", href: "https://github.com/SiLyGoose/JavKing", icon: faGithub },
 	];
 
@@ -39,10 +40,12 @@ function Home() {
 						{mainItems.map((item) => (
 							<div key={item.id} className={`${styles.mainButton} col-lg-6 col-md-8 col-sm-8 mb-sm-3`}>
 								<button type="button" className="btn btn-group btn-lg btn-mobfull btn-block justify-content-center">
-									<div className="d-flex align-items-center">
-										<FontAwesomeIcon icon={item.icon} className="my-auto" />
-										<span className={`pl-2 ${utilStyles.fontType3}`}>{item.label}</span>
-									</div>
+									<a href={item.href} className="">
+										<div className="d-flex align-items-center">
+											<FontAwesomeIcon icon={item.icon} className="my-auto" />
+											<span className={`pl-2 ${utilStyles.fontType3}`}>{item.label}</span>
+										</div>
+									</a>
 								</button>
 							</div>
 						))}

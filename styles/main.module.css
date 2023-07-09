@@ -52,6 +52,12 @@
 	border-color: rgb(99, 130, 230);
 }
 
+.mainButton > button > a {
+	text-decoration: none;
+	color: inherit;
+	background-color: inherit;
+}
+
 .container {
 	animation: float 6s ease-in-out infinite;
 }
