@@ -5,20 +5,16 @@ module.exports = {
 		ignoreBuildErrors: true,
 	},
 	publicRuntimeConfig: {
-		PORT: process.env.PORT,
-		CLIENT_BASE_URL: process.env.CLIENT_BASE_URL,
-		NODE_ENV: process.env.NODE_ENV,
 		CLIENT_ID: process.env.CLIENT_ID,
-		REDIRECT_URI: process.env.REDIRECT_URI,
+		CLIENT_OAUTH_REDIRECT: process.env.CLIENT_OAUTH_REDIRECT,
+		CLIENT_REDIRECT: process.env.CLIENT_REDIRECT,
+		CLIENT_SECRET: process.env.CLIENT_SECRET,
+
+		NODE_ENV: process.env.NODE_ENV,
+
+		PORT: process.env.PORT,
+		PROXY_URL: process.env.PROXY_URL,
+
+		SERVER_URL: process.env.SERVER_URL
 	},
-	env:
-		process.env.NODE_ENV !== "production"
-			? {
-					SERVER_URL: "http://localhost/",
-					SOCKET_URL: "http://localhost:3080",
-					PROXY_URL: "http://localhost:8080/api/",
-					CLIENT_ID: "694655522237972510",
-					CLIENT_REDIRECT: "http://localhost:8080/login-callback",
-			  }
-			: {},
 };

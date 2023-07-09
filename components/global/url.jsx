@@ -14,7 +14,7 @@ export function URL(path, ...body) {
 		returnURL = returnURL.concat(body.join("/"));
 	}
 
-	return process.env.PROXY_URL.concat(returnURL);
+	return publicRuntimeConfig.PROXY_URL.concat(returnURL);
 }
 
 export function WS_URL(path, ...body) {
@@ -34,9 +34,9 @@ export function WS_URL(path, ...body) {
 }
 
 export function InviteURL(guildId, state) {
-	return `https://discord.com/oauth2/authorize?client_id=${process.env.CLIENT_ID}&guild_id=${guildId}&permissions=37055488&scope=bot&response_type=code&redirect_url=${process.env.SERVER_URL}/${state}`;
+	return `https://discord.com/oauth2/authorize?client_id=${publicRuntimeConfig.CLIENT_ID}&guild_id=${guildId}&permissions=37055488&scope=bot&response_type=code&redirect_url=${publicRuntimeConfig.SERVER_URL}/${state}`;
 }
 
 export function LoginURL(state) {
-	return `https://discord.com/api/oauth2/authorize?client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.CLIENT_REDIRECT}&response_type=code&scope=identify%20guilds&state=${state}`;
+	return `https://discord.com/api/oauth2/authorize?client_id=${publicRuntimeConfig.CLIENT_ID}&redirect_uri=${publicRuntimeConfig.CLIENT_REDIRECT}&response_type=code&scope=identify%20guilds&state=${state}`;
 }

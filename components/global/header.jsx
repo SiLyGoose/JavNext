@@ -50,7 +50,7 @@ function Header() {
 				.then((response) => response.json())
 				.then((data) => {
 					setUser(data);
-					setIsLoggedIn(true);
+					// setIsLoggedIn(true);
 				})
 				.catch(console.error);
 		}

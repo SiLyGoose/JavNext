@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { useToken } from "../../components/global/token/TokenContext";
-import { publicRuntimeConfig } from "../../next.config";
+import getConfig from "next/config";
+
+const { publicRuntimeConfig } = getConfig();
 
 // export default function handleLoginCallback(req: NextApiRequest, res: NextApiResponse)
 export default function handleLoginCallback(req, res) {
@@ -12,7 +14,7 @@ export default function handleLoginCallback(req, res) {
 		client_secret: publicRuntimeConfig.CLIENT_SECRET,
 		grant_type: "authorization_code",
 		code,
-		redirect_uri: publicRuntimeConfig.REDIRECT_URI,
+		redirect_uri: publicRuntimeConfig.CLIENT_REDIRECT,
 	});
 
 	const oauth = "https://discord.com/api/v10/oauth2/token";
@@ -28,7 +30,7 @@ export default function handleLoginCallback(req, res) {
 		.then(async (data) => {
 			// also contains scope
 			const { access_token, token_type, expires_in, refresh_token } = data;
-			return fetch(process.env.CLIENT_REDIRECT, {
+			return fetch(publicRuntimeConfig.CLIENT_OAUTH_REDIRECT, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
