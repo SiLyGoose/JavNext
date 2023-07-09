@@ -34,9 +34,7 @@ export function WS_URL(path, ...body) {
 }
 
 export function InviteURL(guildId, state) {
-	return `https://discord.com/oauth2/authorize?client_id=${process.env.CLIENT_ID}&guild_id=${guildId}&permissions=37055488&scope=bot&response_type=code&redirect_url=${
-		process.env.SERVER_URL || process.env.BOT_SITE
-	}/${state}`;
+	return `https://discord.com/oauth2/authorize?client_id=${process.env.CLIENT_ID}&guild_id=${guildId}&permissions=37055488&scope=bot&response_type=code&redirect_url=${process.env.SERVER_URL}/${state}`;
 }
 
 export function LoginURL(state) {
