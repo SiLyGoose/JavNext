@@ -159,7 +159,7 @@ function Header() {
 	};
 
 	const handleLogout = () => {
-		fetch(URL("remove-guild-member", Cookie("userId")), { method: "DELETE" })
+		fetch(URL("remove-guild-member", token), { method: "DELETE" })
 			.then((response) => {
 				if (!response.ok) throw new Error("Unable to log user out", { cause: response });
 				setUser(null);

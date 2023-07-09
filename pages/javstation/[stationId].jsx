@@ -19,6 +19,7 @@ import { icon } from "@fortawesome/fontawesome-svg-core";
 import { v4 as uuidv4 } from "uuid";
 import clsx from "clsx";
 import { humanizeMs, throttle, updateStyle } from "../../components/global/util";
+import { useToken } from "../../components/global/token/TokenContext";
 // import { usePalette } from "react-palette";
 
 function JavStation() {
@@ -73,6 +74,7 @@ function JavStation() {
 	const router = useRouter();
 	// allows Next.js to grab /javstation/[stationId]
 	const { stationId } = router.query;
+	const token = useToken();
 
 	// allow user 5 seconds after initial previous arrow click (seek to 0)
 	// to load previous track (refreshable)
@@ -164,17 +166,17 @@ function JavStation() {
 	};
 
 	useEffect(() => {
-		if (!Cookie("userId")) router.replace("/javstudio");
+		if (!token) router.replace("/javstudio");
 
 		if (!stationId) return;
 
 		// connect to NGINX reverse proxy JavKing socket server
 		// const ws = new WebSocket(WS_URL(process.env.SOCKET_URL, { userId: Cookie("userId"), stationId, transport: "websocket" }));
-		const socketWrapper = new SocketWrapper(Cookie("userId"), stationId);
+		const socketWrapper = new SocketWrapper(token, stationId);
 
 		setSocket(socketWrapper);
 
-		fetch(URL("guild-member-data", Cookie("userId")))
+		fetch(URL("guild-member-data", token))
 			.then((response) => response.json())
 			.then((data) => {
 				const {
@@ -189,7 +191,7 @@ function JavStation() {
 				setMutualList([]);
 			});
 
-		fetch(URL("voice-member-data", { u: Cookie("userId"), stationId }))
+		fetch(URL("voice-member-data", { token, stationId }))
 			.then((response) => response.json())
 			.then((data) => {
 				const { userChannel, botChannel } = data;
