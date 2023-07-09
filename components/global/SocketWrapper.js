@@ -4,12 +4,12 @@ import getConfig from "next/config";
 const { publicRuntimeConfig } = getConfig();
 
 export class SocketWrapper {
-	constructor(userId, stationId) {
-		this.userId = userId;
+	constructor(token, stationId) {
+		this.token = token;
 		this.stationId = stationId;
         
 		// unique socket identification
-		this.sid = { u: userId, s: stationId };
+		this.sid = { t: token, s: stationId };
 		this.socket = io(publicRuntimeConfig.SOCKET_URL, { query: this.sid });
 	}
 

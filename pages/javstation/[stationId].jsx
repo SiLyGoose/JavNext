@@ -166,9 +166,7 @@ function JavStation() {
 	};
 
 	useEffect(() => {
-		if (!token) router.replace("/javstudio");
-
-		if (!stationId) return;
+		if (!stationId || !token) return;
 
 		// connect to NGINX reverse proxy JavKing socket server
 		// const ws = new WebSocket(WS_URL(process.env.SOCKET_URL, { userId: Cookie("userId"), stationId, transport: "websocket" }));
@@ -295,7 +293,7 @@ function JavStation() {
 		return () => {
 			socketWrapper.close();
 		};
-	}, [stationId, setSocket]);
+	}, [stationId, setSocket, token]);
 
 	const updateSlider = (newValue) => {
 		newValue = newValue.toFixed(2);
