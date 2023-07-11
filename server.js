@@ -30,7 +30,7 @@ const apiPaths = {
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-// temporary workaround to retrieve socket connections 
+// temporary workaround to retrieve socket connections
 const socketConnections = {};
 
 app.prepare()
@@ -45,7 +45,7 @@ app.prepare()
 		// Next creates the socket client and sends jAuth credentials (token, stationId, socketId) to JavBot via POST requests
 		// JavBot authenticates user with UUID token and processes data before making POST request to /socketEmit and is then
 		// handed to JavStation.SocketWrapper to handle via SocketWrapper#onAny
-		// 
+		//
 		// TODO: move socket server to separate application or configure SpringBoot integration
 		server.post("/socketEmit", (req, res) => {
 			// const connectedSockets = io.sockets.sockets;
@@ -87,10 +87,14 @@ app.prepare()
 					console.log("Added client ::", socket.id);
 					return fetch(process.env.PROXY_SOCKET_URL + "stationAccessed/" + token, { method: "POST" });
 				})
-				.catch((e) => console.error("ERROR ::", e));
+				.catch((e) => console.error("ADD_CLIENT ERROR ::", e));
 
 			socket.on("disconnect", () => {
-				console.log("Disconnected ::", socket.id);
+				fetch(process.env.PROXY_SOCKET_URL + "remove-client", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestBody) })
+				.then(() => {
+					console.log("Removed client ::", socket.id);
+				})
+				.catch((e) => console.error("DISCONNECT ERROR ::", e));
 			});
 		});
 
@@ -110,5 +114,5 @@ app.prepare()
 		});
 	})
 	.catch((err) => {
-		console.log("Error:::::", err);
+		console.log("SERVER ERROR::::", err);
 	});
