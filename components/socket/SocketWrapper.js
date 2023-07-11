@@ -29,6 +29,7 @@ export class SocketWrapper {
 	// update JavStation with JavBot events
 	onAny(callback) {
 		this.socket.onAny((op, data) => {
+			console.log(op, data);
 			callback(op, data);
 		});
 	}
