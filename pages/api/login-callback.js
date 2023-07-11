@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import getConfig from "next/config";
-import { Q_URL } from "../../components/global/url";
+import { Q_URL } from "../../components/global/util/url";
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -11,8 +11,9 @@ export default function handleLoginCallback(req, res) {
 		cookies: { token },
 	} = req;
 
+	// links GuildMember user with token
 	fetch(Q_URL(publicRuntimeConfig.CLIENT_OAUTH_REDIRECT, { code, uuid: token }), { method: "POST" })
-		.finally(() => res.redirect(state))
+		.then(() => res.redirect(state))
 		.catch((error) => {
 			console.error(error);
 

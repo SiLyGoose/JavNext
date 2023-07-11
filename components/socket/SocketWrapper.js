@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
 import getConfig from "next/config";
+import { WS_URL } from "../global/util/url";
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -7,9 +8,9 @@ export class SocketWrapper {
 	constructor(token, stationId) {
 		this.token = token;
 		this.stationId = stationId;
-        
+
 		// unique socket identification
-		this.sid = { t: token, s: stationId };
+		this.sid = { token, stationId };
 		this.socket = io(publicRuntimeConfig.SOCKET_URL, { query: this.sid });
 	}
 
@@ -19,13 +20,16 @@ export class SocketWrapper {
 		};
 	}
 
-	emit(op, data = {}) {
-		this.socket.emit(op, JSON.stringify({ ...data, ...this.sid }));
+	// update JavBot with JavStation events
+	emit(op, ...data) {
+		// this.socket.emit(op, JSON.stringify({ ...data, ...this.sid }));
+		fetch(WS_URL(op, this.token, ...data), { method: "POST" });
 	}
 
+	// update JavStation with JavBot events
 	onAny(callback) {
 		this.socket.onAny((op, data) => {
-			callback(op, JSON.parse(data));
+			callback(op, data);
 		});
 	}
 

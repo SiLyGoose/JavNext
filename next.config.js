@@ -13,8 +13,8 @@ module.exports = {
 
 		PORT: process.env.PORT,
 		PROXY_URL: process.env.PROXY_URL,
+		PROXY_SOCKET_URL: process.env.PROXY_SOCKET_URL,
 
-		SERVER_URL: process.env.SERVER_URL,
 		SOCKET_URL: process.env.SOCKET_URL
 	},
 };

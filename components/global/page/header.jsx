@@ -1,8 +1,8 @@
 import { Span } from "./span";
-import Image from "./image";
+import Image from "../image";
 import Cookie from "./cookie";
-import { userIcon } from "./icon";
-import { LoginURL, API_URL } from "./url";
+import { userIcon } from "../util/icon";
+import { LoginURL, API_URL } from "../util/url";
 
 import utilStyles from "../../styles/utils.module.css";
 import styles from "../../styles/header.module.css";
@@ -13,7 +13,7 @@ import { clsx } from "clsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightFromBracket, faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
-import { useToken } from "./token/TokenContext";
+import { useToken } from "../token/TokenContext";
 
 // cache to allow quicker load times and less computing/fetching
 // import useSWR from "swr";

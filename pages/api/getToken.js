@@ -1,5 +1,6 @@
 import { handler as tHandler } from "./token";
 
+// get token for session
 export default function handler(req, res) {
 	const { token } = req?.cookies;
     

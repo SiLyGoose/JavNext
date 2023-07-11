@@ -1,14 +1,14 @@
 import styles from "../../styles/javstation.module.css";
 import utilStyles from "../../styles/utils.module.css";
 
-import Canvas from "../../components/global/canvas";
-import Header from "../../components/global/header";
-import { API_URL } from "../../components/global/url";
+import Canvas from "../../components/global/page/canvas";
+import Header from "../../components/global/page/header";
+import { API_URL, WS_URL } from "../../components/global/util/url";
 import Cookie from "../../components/global/cookie";
-import { Span } from "../../components/global/span";
+import { Span } from "../../components/global/page/span";
 import Image from "../../components/global/image";
-import { guildIcon } from "../../components/global/icon";
-import { SocketWrapper } from "../../components/global/SocketWrapper";
+import { guildIcon } from "../../components/global/util/icon";
+import { SocketWrapper } from "../../components/socket/SocketWrapper";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
@@ -18,8 +18,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core";
 import { v4 as uuidv4 } from "uuid";
 import clsx from "clsx";
-import { humanizeMs, throttle, updateStyle } from "../../components/global/util";
+import { humanizeMs, throttle, updateStyle } from "../../components/global/util/qol";
 import { useToken } from "../../components/global/token/TokenContext";
+// Palette to create dynamic background based on video thumbnail (MOBILE ONLY)
 // import { usePalette } from "react-palette";
 
 function JavStation() {
@@ -74,6 +75,7 @@ function JavStation() {
 	const router = useRouter();
 	// allows Next.js to grab /javstation/[stationId]
 	const { stationId } = router.query;
+	// token used to gain API access
 	const token = useToken();
 
 	// allow user 5 seconds after initial previous arrow click (seek to 0)
@@ -82,7 +84,7 @@ function JavStation() {
 	const sendStationPrevious = () => {
 		clearTimeout(timeoutId);
 
-		socket.emit("stationPrevious", { loadPrevious });
+		socket.emit("stationPrevious", loadPrevious);
 
 		setLoadPrevious(true);
 
@@ -92,7 +94,7 @@ function JavStation() {
 	};
 
 	const sendStationPaused = () => {
-		socket.emit("stationPaused", { d: stationPaused });
+		socket.emit("stationPaused", stationPaused);
 		// setStationPaused(!stationPaused);
 	};
 
@@ -104,7 +106,7 @@ function JavStation() {
 
 		// wait..skip bypasses any repeat setting - Simon 2:25 AM :)
 		const offset = 1;
-		socket.emit("stationSkipped", { songSkipped: offset });
+		socket.emit("stationSkipped", offset);
 		// setStationPosition(stationPosition + offset);
 	};
 
@@ -128,7 +130,8 @@ function JavStation() {
 
 	const sendStationRepeat = () => {
 		const { rO, rA } = handleEmitRepeat();
-		socket.emit("stationRepeat", { rO, rA });
+		socket.emit("stationRepeat", rO, rA);
+		// socket.emit("stationRepeat", { rO, rA });
 		// setStationRepeat([rO, rA]);
 	};
 
@@ -150,7 +153,7 @@ function JavStation() {
 	];
 
 	const handleTrackRemoved = (index) => {
-		socket.emit("stationTrackRemoved", { index });
+		socket.emit("stationTrackRemoved", index);
 	};
 
 	const reset = ({ track }) => {
@@ -197,7 +200,7 @@ function JavStation() {
 			})
 			.catch(console.error);
 
-		socketWrapper.emit("stationAccessed");
+		// socketWrapper.emit("stationAccessed");
 
 		// { userChannel: { voiceId, voiceName, botJoinable },
 		// botChannel: { botVoiceId, botVoiceName, botSpeakable } }

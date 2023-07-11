@@ -33,7 +33,7 @@ export function API_URL(path, ...body) {
 }
 
 export function WS_URL(path, ...body) {
-	var returnURL = path.concat("/?");
+	var returnURL = publicRuntimeConfig.PROXY_SOCKET_URL.concat(path).concat("/");
 
 	if (typeof body[0] === "object") {
 		for (let i = 0; i < body.length; i++) {

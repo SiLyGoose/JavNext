@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
+// create token for session
 export function handler(req, res) {
 	const token = uuidv4();
 

@@ -1,6 +1,8 @@
 import moment from "moment";
 import fetch from "node-fetch";
 
+// quality of life functions
+
 export function humanizeMs(durationMs) {
 	const duration = moment.utc(durationMs);
 	let format = "";
@@ -12,6 +14,7 @@ export function humanizeMs(durationMs) {
 	return moment.utc(durationMs).format(format);
 }
 
+// limit slider JS calculations to increase smoothness
 export function throttle(callback, delay) {
 	let timeoutId;
 	let previousCall = 0;
@@ -45,6 +48,7 @@ export function JSONify(event, data) {
 	return JSON.stringify({ event, data });
 }
 
+// retrieve httpOnly token
 export async function getIdentifier() {
 	const response = await fetch('/api/getToken');
 	const data = await response.json();
