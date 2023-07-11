@@ -1,4 +1,4 @@
-import styles from '../../styles/canvas.module.css';
+import styles from '../../../styles/canvas.module.css';
 
 import React, { useEffect, useRef } from "react";
 

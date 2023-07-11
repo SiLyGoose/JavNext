@@ -4,9 +4,8 @@ import utilStyles from "../../styles/utils.module.css";
 import Canvas from "../../components/global/page/canvas";
 import Header from "../../components/global/page/header";
 import { API_URL, WS_URL } from "../../components/global/util/url";
-import Cookie from "../../components/global/cookie";
 import { Span } from "../../components/global/page/span";
-import Image from "../../components/global/image";
+import Image from "../../components/global/page/image";
 import { guildIcon } from "../../components/global/util/icon";
 import { SocketWrapper } from "../../components/socket/SocketWrapper";
 
@@ -335,7 +334,7 @@ function JavStation() {
 			document.removeEventListener("mousemove", handleMouseMove);
 			document.removeEventListener("mouseup", handleMouseUp);
 
-			socket.emit("stationSeek", JSON.stringify({ positionMs: (sliderPosition.current * stationDurationMs.current) / 100, u: Cookie("userId"), stationId }));
+			socket.emit("stationSeek", (sliderPosition.current * stationDurationMs.current) / 100 );
 		};
 
 		document.addEventListener("mousemove", handleMouseMove);

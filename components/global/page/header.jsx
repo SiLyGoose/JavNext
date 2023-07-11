@@ -1,11 +1,10 @@
 import { Span } from "./span";
-import Image from "../image";
-import Cookie from "./cookie";
+import Image from "./image";
 import { userIcon } from "../util/icon";
 import { LoginURL, API_URL } from "../util/url";
 
-import utilStyles from "../../styles/utils.module.css";
-import styles from "../../styles/header.module.css";
+import utilStyles from "../../../styles/utils.module.css";
+import styles from "../../../styles/header.module.css";
 
 import React, { useState, useEffect, useRef, Component } from "react";
 import Link from "next/link";

@@ -2,13 +2,12 @@ import styles from "../styles/main.module.css";
 import utilStyles from "../styles/utils.module.css";
 import studioStyles from "../styles/javstudio.module.css";
 
-import Cookie from "../components/global/cookie";
-import Canvas from "../components/global/canvas";
-import Header from "../components/global/header";
-import { InviteURL, LoginURL, API_URL } from "../components/global/url";
-import { Span } from "../components/global/span";
-import Image from "../components/global/image";
-import { guildIcon } from "../components/global/icon";
+import Canvas from "../components/global/page/canvas";
+import Header from "../components/global/page/header";
+import { InviteURL, LoginURL, API_URL } from "../components/global/util/url";
+import { Span } from "../components/global/page/span";
+import Image from "../components/global/page/image";
+import { guildIcon } from "../components/global/util/icon";
 
 import React, { useState, useEffect } from "react";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";

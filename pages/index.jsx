@@ -1,9 +1,9 @@
 // pages/index.js?x is associated with route /
 // pages/posts/first-post.js?x is associated with route /posts/first-post
 
-import Header from "../components/global/header";
-import Canvas from "../components/global/canvas";
-import Footer from "../components/global/footer";
+import Header from "../components/global/page/header";
+import Canvas from "../components/global/page/canvas";
+import Footer from "../components/footer";
 
 import styles from "../styles/main.module.css";
 import utilStyles from "../styles/utils.module.css";
@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faDiscord } from "@fortawesome/free-brands-svg-icons";
 
 import React from "react";
-import { InviteURL } from "../components/global/url";
+import { InviteURL } from "../components/global/util/url";
 
 function Home() {
 	// bootstrap5 wtf?

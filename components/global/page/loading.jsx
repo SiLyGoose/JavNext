@@ -1,6 +1,6 @@
 import React from "react";
 
-import styles from "../../styles/canvas.module.css";
+import styles from "../../../styles/canvas.module.css";
 
 const Loading = ({isLoading}) => {
 	return (

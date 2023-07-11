@@ -11,7 +11,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 // loading screen component
-import Loading from "../components/global/loading";
+import Loading from "../components/global/page/loading";
 import { TokenProvider } from "../components/global/token/TokenContext";
 
 // import { library } from '@fortawesome/fontawesome-svg-core'
