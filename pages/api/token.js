@@ -8,5 +8,5 @@ export function handler(req, res) {
 	res.setHeader("Set-Cookie", `token=${token}; Path=/; Max-Age=86400; HttpOnly`);
 
 	// Return the token in the response
-	res.status(200).json({ token });
+	return res.status(200).json({ token });
 }
