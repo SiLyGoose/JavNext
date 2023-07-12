@@ -199,7 +199,18 @@ function JavStation() {
 			})
 			.catch(console.error);
 
-		// socketWrapper.emit("stationAccessed");
+		async function initializeStation() {
+			console.log("Added client ::", socketWrapper.socket.id);
+			console.log("Client jAuth ::", token, stationId);
+			return socketWrapper.emit("stationAccessed");
+		}
+
+		// Initialize StationClient in JavBot and retrieve details through POST request (JavBot returns with /socketEmit POST request)
+		socketWrapper.socket.on("connect", () => {
+			socketWrapper.emitJSON("add-client", { token, stationId, socketId: socketWrapper.socket.id }, initializeStation);
+		});
+
+		// .catch((e) => console.error("ADD_CLIENT ERROR ::", e));
 
 		// { userChannel: { voiceId, voiceName, botJoinable },
 		// botChannel: { botVoiceId, botVoiceName, botSpeakable } }
@@ -334,7 +345,9 @@ function JavStation() {
 			document.removeEventListener("mousemove", handleMouseMove);
 			document.removeEventListener("mouseup", handleMouseUp);
 
-			socket.emit("stationSeek", (sliderPosition.current * stationDurationMs.current) / 100 );
+			const newPosition = Math.floor((sliderPosition.current * stationDurationMs.current) / 100);
+			stationPositionMs.current = newPosition;
+			socket.emit("stationSeek", newPosition);
 		};
 
 		document.addEventListener("mousemove", handleMouseMove);
@@ -457,16 +470,25 @@ function JavStation() {
 													</Span>
 													<span className={`ml-2 ${utilStyles.colorAdjust1} ${styles.stationTrackInfoRequester}`}>{username}</span>
 												</div>
-												<div className="flex-shrink-0">
-													<button className="position-relative bg-transparent" onClick={handleTrackRemoved(index)}>
-														<FontAwesomeIcon
-															icon={icon(faXmark)}
-															width={16}
-															height={16}
-															className={`d-block h-100 w-100 ${utilStyles.colorAdjust1} ${styles.stationTrackRemoveBtn}`}
-														/>
-													</button>
-												</div>
+												{(index > stationPosition ||
+													(index < stationPosition - 1 && stationRepeat[1])) &&
+													(
+														<div className="flex-shrink-0">
+															<button
+																className="position-relative bg-transparent"
+																onClick={() => {
+																	handleTrackRemoved(index);
+																}}
+															>
+																<FontAwesomeIcon
+																	icon={icon(faXmark)}
+																	width={16}
+																	height={16}
+																	className={`d-block h-100 w-100 ${utilStyles.colorAdjust1} ${styles.stationTrackRemoveBtn}`}
+																/>
+															</button>
+														</div>
+													)}
 											</div>
 										</div>
 									</div>

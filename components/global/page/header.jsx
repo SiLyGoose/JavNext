@@ -188,7 +188,7 @@ function Header() {
 							<li key={item.id}>
 								<Link
 									className={`${utilStyles.fontType2} ${styles.dropdownItem}`}
-									href={router.asPath.includes("javstation") ? "/javstudio" : item.href}
+									href={router.asPath.includes("javstation") || router.asPath.includes("javstudio") ? "/javstudio" : item.href}
 									onClick={index === 1 ? handleLogout : undefined}
 								>
 									<Span Px={18}>

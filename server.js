@@ -55,7 +55,13 @@ app.prepare()
 				data,
 			} = req.body;
 
+			if (op === "timeUpdate") {
+				broadcastEmit(stationId, op, data);
+				return res.sendStatus(200);
+			}
+
 			for (const socket of Object.values(socketConnections)) {
+				console.log(socketId, socket.jAuth.socketId);
 				const {
 					jAuth: { token: t, stationId: stId, socketId: soId },
 				} = socket;
@@ -68,6 +74,22 @@ app.prepare()
 			return res.status(404).send("Socket not found");
 		});
 
+		function broadcastEmit(stationId, op, data) {
+			Object.values(socketConnections).forEach((socket) => {
+				// socket.handshake.query { token, stationId }
+				// socket.jAuth { token, stationId, socketId }
+				const {
+					jAuth: { stationId: stId },
+				} = socket;
+				if (stId === stationId) {
+					socket.emit(op, data);
+				}
+			});
+		}
+
+		// prevent StationClient == null on page quick refresh
+		// let disconnectTimeouts = {};
+
 		io.on("connection", (socket) => {
 			console.log("Client connected ::", socket.id);
 
@@ -79,22 +101,20 @@ app.prepare()
 			const requestBody = { token, stationId, socketId: socket.id };
 
 			socket.jAuth = requestBody;
+			console.log(socket.jAuth);
 			socketConnections[token] = socket;
 
-			// Initialize StationClient in JavBot and retrieve details through POST request (JavBot returns with /socketEmit POST request)
-			fetch(process.env.PROXY_SOCKET_URL + "add-client", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestBody) })
-				.then(() => {
-					console.log("Added client ::", socket.id);
-					return fetch(process.env.PROXY_SOCKET_URL + "stationAccessed/" + token, { method: "POST" });
-				})
-				.catch((e) => console.error("ADD_CLIENT ERROR ::", e));
+			// clearTimeout(disconnectTimeouts[token]);
 
 			socket.on("disconnect", () => {
+				// disconnectTimeouts[token] = setTimeout(() => {
 				fetch(process.env.PROXY_SOCKET_URL + "remove-client", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestBody) })
-				.then(() => {
-					console.log("Removed client ::", socket.id);
-				})
-				.catch((e) => console.error("DISCONNECT ERROR ::", e));
+					.then(() => {
+						console.log("Removed client ::", token, socket.id);
+						delete socketConnections[token];
+					})
+					.catch((e) => console.error("DISCONNECT ERROR ::", e));
+				// }, 600 * 1000);
 			});
 		});
 

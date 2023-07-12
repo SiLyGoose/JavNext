@@ -26,10 +26,13 @@ export class SocketWrapper {
 		fetch(WS_URL(op, this.token, ...data), { method: "POST" });
 	}
 
+	emitJSON(op, data, callback) {
+		fetch(WS_URL(op), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(callback);
+	}
+
 	// update JavStation with JavBot events
 	onAny(callback) {
 		this.socket.onAny((op, data) => {
-			console.log(op, data);
 			callback(op, data);
 		});
 	}
