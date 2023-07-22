@@ -222,7 +222,7 @@ button.buttonActiveEffect {
 
 .boxSelectedName {
 	padding-left: 8px;
-	text-align: left;
+	text-align: right;
 }
 
 .boxSelectedName.activeEffect {
@@ -392,14 +392,14 @@ button.buttonActiveEffect {
 	transition: transform 0.3s cubic-bezier(0.2, 0.5, 0.4, 1), color 0.3s ease, background-color 0.2s ease;
 }
 
-@media only screen and (max-width: 1024px) {
+@media only screen and (max-width: 768px) {
 	.headerMobile {
 		background-color: #2c2a31;
 		border-bottom: 1px solid #3b3842;
 	}
 }
 
-@media only screen and (min-width: 1024px) {
+@media only screen and (min-width: 768px) {
 	.header {
 		padding: 0 40px;
 		height: 72px;

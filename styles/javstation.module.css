@@ -3,8 +3,105 @@
 	min-height: calc(100vh - 56px - 114px);
 }
 
+.dropdownBoxArrow {
+	border: solid #fff !important;
+	border-width: 0 1.75px 1.75px 0 !important;
+	width: 10px !important;
+	height: 10px !important;
+}
+
+.thumbnailContainer {
+	position: relative;
+	display: block;
+	width: 100%;
+	padding-top: 100%;
+	overflow: hidden;
+}
+
+.thumbnailContainer img {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
 .coverContainer {
 	background-color: #1e1b21;
+}
+
+.optionsCoverContainer {
+	display: block;
+	height: 100vh;
+	background-color: #1e1b21;
+	opacity: 0.9;
+}
+
+.coverCard {
+	height: calc(100% - 56px) !important;
+}
+
+.titleContainer {
+	width: 100%;
+	overflow: hidden;
+	position: relative;
+}
+
+.slidingText {
+	width: fit-content;
+	white-space: nowrap;
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+.maskedOverflow {
+	/* scroll bar width, for use in mask calculations */
+	--scrollbar-width: 8px;
+
+	/* mask fade distance, for use in mask calculations */
+	--mask-width: 20px;
+
+	/* If content exceeds height of container, overflow! */
+	overflow-x: auto;
+
+	/* Our height limit */
+	width: 100%;
+
+	/* Need to make sure container has bottom space,
+  		otherwise content at the bottom is always faded out */
+	padding-right: var(--mask-width);
+
+	/* Keep some space between content and scrollbar */
+	padding-bottom: 20px;
+
+	/* The CSS mask */
+
+	/* The content mask is a linear gradient from top to bottom */
+	--mask-image-content: linear-gradient(to right, transparent, black var(--mask-width), black calc(100% - var(--mask-width)), transparent);
+
+	/* Here we scale the content gradient to the width of the container 
+  		minus the scrollbar width. The height is the full container height */
+	--mask-size-content: 100% calc(100% - var(--scrollbar-width));
+
+	/* The scrollbar mask is a black pixel */
+	--mask-image-scrollbar: linear-gradient(black, black);
+
+	/* The width of our black pixel is the width of the scrollbar.
+  		The height is the full container height */
+	--mask-size-scrollbar: 100% var(--scrollbar-width);
+
+	/* Apply the mask image and mask size variables */
+	mask-image: var(--mask-image-content), var(--mask-image-scrollbar);
+	mask-size: var(--mask-size-content), var(--mask-size-scrollbar);
+
+	/* Position the content gradient in the top left, and the 
+  		scroll gradient in the top right */
+	mask-position: 0 0, 0 100%;
+
+	/* We don't repeat our mask images */
+	mask-repeat: no-repeat, no-repeat;
 }
 
 .guildNavContainer {
@@ -123,6 +220,55 @@
 
 .trackControlSection {
 	margin-left: auto;
+}
+
+.stationMutatorWrapper {
+	height: 48px;
+	margin-left: 6px;
+	margin-right: 6px;
+}
+
+.mobStationPlusOptions,
+.mobStationOption {
+	position: relative;
+	overflow: hidden;
+}
+
+.mobGuildListContainer {
+	margin-right: 3px;
+}
+
+.stationMutatorWrapper .btnFlash,
+.mobCardMutator .btnFlash,
+.mobGuildListContainer .btnFlash {
+	will-change: background-color;
+	position: absolute;
+	transform: scale(1);
+	animation: buttonFlash 0.5s ease;
+	border-radius: 50%;
+}
+
+.mobStationPlusOptions .btnFlashRadiate,
+.mobStationOption .btnFlashRadiate {
+	will-change: opacity, transform;
+	position: absolute; /* The absolute position we mentioned earlier */
+	border-radius: 50%;
+	transform: scale(0);
+	animation: ripple 0.5s linear;
+	background-color: rgba(255, 255, 255, 0.7);
+}
+
+.pauseMutatorWrapper {
+	margin-left: 12px;
+	margin-right: 12px;
+	border-radius: 50%;
+	background-color: var(--mob-palette-vibrant);
+}
+
+.pauseMutatorWrapper .btnFlash {
+	will-change: background-color;
+	animation: pauseButtonFlash 0.5s ease;
+	border-radius: 50%;
 }
 
 .trackMutator {
@@ -274,15 +420,15 @@ a.stationTrackTitle:hover {
 }
 
 .stationTrackRemoveBtn:hover {
-	color: #d15e8f!important;
+	color: #d15e8f !important;
 	transform: scale(1.2);
 }
 
 .stationTrackInfoRequester {
 	text-overflow: ellipsis;
-    overflow: hidden;
-    max-width: 150px;
-    white-space: nowrap;
+	overflow: hidden;
+	max-width: 150px;
+	white-space: nowrap;
 }
 
 .stationControllerSlider .sliderInputRange {
@@ -297,15 +443,16 @@ a.stationTrackTitle:hover {
 .stationControllerSlider .inputSliderContainer {
 	height: 4px;
 	background-color: #8d819c;
+	overflow: hidden;
 }
 
 .stationControllerSlider .activeEffect {
 	background: #d15e8f;
-    transition: .1s linear;
+	transition: 0.1s linear;
 }
 
 .stationControllerSlider .inputLabelContainer {
-	transition: .1s linear;
+	transition: 0.1s linear;
 }
 
 .stationControllerSlider .inputLabel {
@@ -313,21 +460,22 @@ a.stationTrackTitle:hover {
 }
 
 .inputSlider {
+	position: absolute;
 	background: #d15e8f;
-    border: none;
-    cursor: pointer;
-    border-radius: 50%;
-    margin: 0;
-    transform: translate(-50%,calc(-50% - 2px)) scale(0);
-    position: relative;
-    z-index: 1;
-    height: 12px;
-    width: 12px;
-    transition: .2s ease;
+	border: none;
+	cursor: pointer;
+	border-radius: 50%;
+	margin: 0;
+	transform: translate(-50%, calc(-50% - 2px)) scale(0);
+	position: relative;
+	z-index: 1;
+	height: 12px;
+	width: 12px;
+	transition: 0.2s ease;
 }
 
 .stationControllerSlider:hover .inputSlider {
-	transform: translate(-50%,calc(-50% - 2px)) scale(1);
+	transform: translate(-50%, calc(-50% - 2px)) scale(1);
 }
 
 .baseToolTip {
@@ -393,6 +541,51 @@ a.stationTrackTitle:hover {
 	font-style: normal;
 	letter-spacing: normal;
 	padding: 8px;
+}
+
+@media screen and (max-width: 425px) {
+	.mobStationContainer.activeContainer {
+		background-color: var(--mob-palette-darkVibrant, #1e1b21);
+	}
+
+	.stationControllerSlider {
+		width: 80%;
+		margin: auto;
+	}
+
+	.stationControllerSlider .sliderInputRange {
+		height: 2px;
+	}
+
+	.stationControllerSlider .inputSliderContainer {
+		height: 2px;
+		position: relative;
+	}
+
+	.stationControllerSlider .inputSlider {
+		position: relative;
+		background: white;
+	}
+
+	.stationControllerSlider .activeEffect {
+		background: white;
+	}
+
+	.activeAllEffect {
+		color: #78a5e3;
+		background-color: transparent;
+	}
+
+	.activeEffect {
+		color: #d185cd;
+		background-color: transparent;
+	}
+}
+
+@media screen and (max-width: 425px) and (min-height: 800px) {
+	.stationMutatorContainer {
+		margin-bottom: 5vh;
+	}
 }
 
 @media only screen and (min-width: 1024px) {
@@ -570,4 +763,261 @@ a.stationTrackTitle:hover {
 		margin: 0 12px;
 		display: inline-block;
 	}
+}
+
+.mobStationUserIcon {
+	max-width: 40px;
+}
+
+.mobStationGuild {
+	border-bottom: 1px solid #3b3842;
+}
+
+.mobStationGuildIcon {
+	max-width: 48px;
+}
+
+.mobStationOptionsContainer .mobStationGuildIcon,
+.mobStationOption .mobStationOptionWrapper {
+	max-width: 42px;
+}
+
+.mobStationOption .mobStationOptionWrapper {
+	overflow: hidden;
+}
+
+.mobStationOption .mobStationOptionWrapper img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.mobGuild {
+	background-color: transparent;
+}
+
+.guildActive {
+	/* --mob-guild-select-default: rgba(255, 255, 255, 0.05); */
+	background-color: rgba(255, 255, 255, 0.05);
+	border-radius: 8px;
+}
+
+.mobStationOptionsContainer {
+	background-color: #2c2a31;
+}
+
+.mobStationPlusOptionsContainer,
+.mobStationOptionsContainer {
+	animation-delay: 0.3s;
+}
+
+.mobStationPlusOptionsContainer.activeContainer {
+	will-change: transform, opacity;
+	position: relative;
+	flex: 1;
+	height: 100%;
+	width: 100%;
+	background-color: var(--mob-palette-vibrant);
+	animation: pullUp 0.5s ease-in-out;
+}
+
+.mobStationPlusOptionsContainer.activeContainer::before,
+.mobStationPlusOptionsContainer.activeOptionsContainer::before {
+	will-change: transform;
+	position: absolute;
+	content: "";
+	width: 10%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border: 2px solid #ada5b6;
+	border-radius: 2px;
+}
+
+.mobStationPlusOptions.activeContainer::after {
+	will-change: transform;
+	position: absolute;
+	content: "";
+	height: 2px;
+	width: 100%;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: white;
+}
+
+.mobStationPlusContainer {
+	background-color: var(--mob-palette-vibrant);
+}
+
+.unattendedContainer.activeContainer,
+.coverContainer.activeContainer,
+.optionsCoverContainer.activeContainer,
+.mobStationContainer.activeContainer,
+.mobStationPlusContainer.activeContainer,
+.mobStationPlusOptionsContainer.activeContainer {
+	height: 100vh;
+	will-change: transform;
+	animation: pullUp 0.5s ease-in-out;
+}
+
+.mobStationPlusOptionsContainer.activeOptionsContainer {
+	height: 100vh;
+	will-change: transform;
+	animation: dynamicPullUp 0.5s ease-in-out;
+	background-color: var(--mob-palette-vibrant);
+}
+
+.mobStationContainer.activeContainer.stationOptionPlus {
+	height: auto;
+}
+
+.mobStationOptionsContainer.activeContainer {
+	will-change: transform;
+	animation: pullUp 0.5s ease-in-out;
+}
+
+.mobStationContainer.deactiveContainer,
+.unattendedContainer.deactiveContainer,
+.mobStationPlusContainer.deactiveContainer,
+.coverContainer.deactiveContainer,
+.mobStationPlusOptionsContainer.deactiveContainer,
+.mobStationOptionsContainer.deactiveContainer,
+.optionsCoverContainer.deactiveContainer {
+	will-change: transform;
+	animation: pullDown 0.5s ease-in-out;
+}
+
+.mobStationPlusOptionsContainer.deactiveOptionsContainer {
+	will-change: transform;
+	animation: dynamicPullDown 0.5s ease-in-out;
+}
+
+.mobStationWrapper {
+	/* --mob-white10: rgba(255, 255, 255, 0.1); */
+	background-color: #2c2a31;
+}
+
+.activeContainer .mobStationWrapper.activeWrapper {
+	background-color: var(--mob-palette-vibrant);
+}
+
+@keyframes pullUp {
+	0% {
+		transform: translateY(100%);
+	}
+
+	100% {
+		transform: translateY(0%);
+	}
+}
+
+@keyframes dynamicPullUp {
+	0% {
+		transform: translateY(var(--mob-dynamic-centerY));
+	}
+
+	100% {
+		transform: translateY(0%);
+	}
+}
+
+@keyframes pullDown {
+	0% {
+		transform: translateY(0%);
+	}
+
+	100% {
+		transform: translateY(100%);
+	}
+}
+
+@keyframes dynamicPullDown {
+	0% {
+		transform: translateY(0%);
+	}
+
+	100% {
+		transform: translateY(var(--mob-dynamic-centerY));
+	}
+}
+
+@keyframes dynamicLayer {
+	0% {
+		background-color: var(--mob-palette-darkVibrant);
+	}
+	100% {
+		background-color: #1e1b21;
+	}
+}
+
+@keyframes hide {
+	from {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes show {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes buttonFlash {
+	0% {
+		background-color: transparent;
+	}
+
+	50% {
+		background-color: rgba(255, 255, 255, 0.1);
+	}
+
+	100% {
+		background-color: transparent;
+	}
+}
+
+@keyframes pauseButtonFlash {
+	0% {
+		background-color: var(--mob-palette-vibrant);
+	}
+
+	50% {
+		background-color: var(--mob-palette-vibrant-p50);
+	}
+
+	100% {
+		background-color: var(--mob-palette-vibrant);
+	}
+}
+
+@keyframes ripple {
+	from {
+		transform: scale(0);
+		opacity: 1;
+	}
+	to {
+		transform: scale(4);
+		opacity: 0;
+	}
+}
+
+.WIP {
+	position: relative;
+}
+
+.WIP::after {
+	content: "WIP";
+	display: inline-block;
+	background-color: #d15e8f;
+	border-radius: 5px;
+	padding: 1px 5px 1px 5px;
+	margin-left: 5px;
 }

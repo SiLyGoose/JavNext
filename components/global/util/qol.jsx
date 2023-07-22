@@ -50,7 +50,19 @@ export function JSONify(event, data) {
 
 // retrieve httpOnly token
 export async function getIdentifier() {
-	const response = await fetch('/api/getToken');
+	const response = await fetch("/api/getToken");
 	const data = await response.json();
 	return data.token;
+}
+
+export function triggerAnimationClass(element, className, timeout = 500) {
+	element.classList.add(className);
+	setTimeout(() => {
+		element.classList.remove(className);
+	}, timeout);
+}
+
+export function handleEffect(event, callback) {
+	event.stopPropagation();
+	callback();
 }

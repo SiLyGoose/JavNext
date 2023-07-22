@@ -1,4 +1,10 @@
 /* utility class (text styles) that can be re-used across multiple components */
+.defaultFamily {
+	font-family: Poppins, sans-serif;
+	font-style: normal;
+	letter-spacing: normal;
+}
+
 .fontType14 {
 	font-family: Poppins, sans-serif;
 	font-size: 10px;
@@ -110,6 +116,104 @@
 	color: #e0dde4 !important;
 }
 
+.colorAdjust4 {
+	color: #d2cdda !important;
+}
+
+.colorAdjust3 {
+	color: white !important;
+}
+
+
+.truncate {
+	display: inline-block;
+	max-width: 200px; /* Adjust the maximum width as needed */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.line-clamp {
+	display: -webkit-box;
+	-webkit-line-clamp: 2; /* truncates at the second line */
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.z1 {
+	z-index: 1!important;
+	position: relative!important;
+}
+
+.z9 {
+	z-index: 9!important;
+	position: relative!important;
+}
+
+.z99 {
+	z-index: 99!important;
+	position: relative!important;
+}
+
+.z999 {
+	z-index: 999!important;
+	position: relative!important;
+}
+
+.zN1 {
+	z-index: -1!important;
+	position: absolute!important;
+}
+
+.zN99 {
+	z-index: -99!important;
+	position: absolute!important;
+}
+
+.zN999 {
+	z-index: -999!important;
+	position: absolute!important;
+}
+
+.mnw10px {
+	min-width: 10px!important;
+}
+
+.mnw24px {
+	min-width: 24px!important;
+}
+
+.mnh24px {
+	min-height: 24px!important;
+}
+
+.mn24px {
+	min-width: 24px!important;
+	min-height: 24px!important;
+}
+
+.mn36px {
+	min-width: 36px!important;
+	min-height: 36px!important;
+}
+
+
+.hidden {
+	opacity: 0;
+}
+
+.hiddenAnimation {
+	animation: hide 0.5s ease-in-out;
+}
+
+.show {
+	opacity: 1;
+}
+
+.showAnimation {
+	animation: show 0.5s ease-in-out;
+}
+
 @media screen and (max-width: 600px) {
 	.fontAdjust1 {
 		font-size: 3rem;
@@ -186,5 +290,25 @@
 
 	.fontType3 {
 		font-size: 20px;
+	}
+}
+
+@keyframes hide {
+	0% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes show {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
 	}
 }

@@ -1,10 +1,11 @@
 import { Span } from "./span";
 import Image from "./image";
-import { userIcon } from "../util/icon";
+import { guildIcon, userIcon } from "../util/icon";
 import { LoginURL, API_URL } from "../util/url";
 
 import utilStyles from "../../../styles/utils.module.css";
 import styles from "../../../styles/header.module.css";
+import stationStyles from "../../../styles/javstation.module.css";
 
 import React, { useState, useEffect, useRef, Component } from "react";
 import Link from "next/link";
@@ -18,7 +19,7 @@ import { useToken } from "../token/TokenContext";
 // import useSWR from "swr";
 // const fetcher = (...args) => fetch(...args).then((response) => response.json());
 
-function Header() {
+function Header({ JavStation = false }) {
 	const router = useRouter();
 	const token = useToken();
 
@@ -106,15 +107,15 @@ function Header() {
 		return (
 			<div ref={dropdownRefs[0]} className={`${styles.headerNavDropdown} ${styles.dropdownComponent} ${styles.dropdownComponentNoBorder}`}>
 				<button
-					className={`${styles.boxSelected}`}
+					className={styles.boxSelected}
 					id={styles.menu}
 					type="button"
 					onClick={() => {
 						setIsExpanded((prevState) => [!prevState[0], prevState[1]]);
 					}}
 				>
-					<span className={`${styles.boxSelectedName} ${utilStyles.fontType7} ${isExpanded[0] ? styles.activeEffect : undefined}`}>Menu</span>
-					<span className={`${styles.dropdownBoxArrow} ${isExpanded[0] ? styles.activeEffect : undefined}`} />
+					<span className={`${styles.boxSelectedName} ${utilStyles.fontType7} ${clsx({[styles.activeEffect]: isExpanded[0]})}`}>Menu</span>
+					<span className={`${styles.dropdownBoxArrow} ${clsx({[styles.activeEffect]: isExpanded[0]})}`} />
 					{isExpanded[0] && (
 						<ul className={`${styles.menuDropdownWrapper} ${styles.menuItem}`}>
 							{navItems.map((item) => (
@@ -172,7 +173,7 @@ function Header() {
 		return (
 			<button
 				type="button"
-				className={`${styles.boxSelected} ${styles.headerUser} ${isExpanded[1] ? styles.buttonActiveEffect : ""}`}
+				className={`${styles.boxSelected} ${styles.headerUser} ${clsx({[styles.buttonActiveEffect]: isExpanded[1]})}`}
 				onClick={() => {
 					setIsExpanded((prevState) => [prevState[0], !prevState[1]]);
 				}}
@@ -205,7 +206,7 @@ function Header() {
 	};
 
 	return (
-		<header className={`${router.asPath !== "/" ? styles.headerMobile : undefined} ${styles.header} masthead mb-auto`}>
+		<header className={`${clsx({[styles.headerMobile]: router.asPath !== "/"})} ${styles.header} masthead mb-auto`}>
 			<div className={styles.logoWrapper}>
 				<Link className={styles.logoLink} href="/">
 					<span
@@ -225,7 +226,7 @@ function Header() {
 						}}
 						className={`${utilStyles.fontType10} ${styles.logoTitle}`}
 					>
-						{router.asPath !== "/" && winWidth < 1024 ? "JK" : "JavKing"}
+						{winWidth < 425 && winWidth >= 320 ? "JK" : "JavKing"}
 					</span>
 				</Link>
 			</div>
@@ -233,7 +234,7 @@ function Header() {
 			{/* wrapper used to align a group of elements or apply a background color or border */}
 			{/* container used to provide a structured layout or grid system (usually a responsive layout or grid system) */}
 			<div className={styles.headerNavWrapper}>
-				<nav className={styles.headerNavContainer}>{winWidth >= 1024 ? createNavItems() : createNavMenu()}</nav>
+				{!JavStation && <nav className={styles.headerNavContainer}>{winWidth >= 1024 ? createNavItems() : createNavMenu()}</nav>}
 				<div className={styles.headerUserWrapper}>
 					<div ref={dropdownRefs[1]} className={styles.headerUserDropdown}>
 						{user !== null ? createUser() : createHollowUser()}

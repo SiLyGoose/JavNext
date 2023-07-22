@@ -4,18 +4,15 @@ import studioStyles from "../styles/javstudio.module.css";
 
 import Canvas from "../components/global/page/canvas";
 import Header from "../components/global/page/header";
-import { InviteURL, LoginURL, API_URL } from "../components/global/util/url";
-import { Span } from "../components/global/page/span";
-import Image from "../components/global/page/image";
-import { guildIcon } from "../components/global/util/icon";
+import { LoginURL, API_URL } from "../components/global/util/url";
 
 import React, { useState, useEffect } from "react";
-import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core";
 import { useRouter } from "next/router";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import { useToken } from "../components/global/token/TokenContext";
+import TruncatedList from "../components/global/page/TruncatedList";
 
 function JavStudio() {
 	const router = useRouter();
@@ -88,33 +85,7 @@ function JavStudio() {
 						<h5 className={`mt-5 mb-0 text-left text-uppercase ${utilStyles.fontType11} ${utilStyles.fontAdjust3} ${utilStyles.colorAdjust1}`}>
 							showing {Math.min(window.innerHeight > 1024 ? 13 : 10, guildList.length)} servers
 						</h5>
-						<ul className={`px-1 overflow-auto mt-3 ${studioStyles.serverList}`}>
-							{guildList.map((item, index) => (
-								<li key={item.id} className="d-flex mt-3 justify-content-between">
-									<div className="d-flex align-items-center">
-										<div className="flex-shrink-0">
-											<Span>
-												<Image alt={item.name} src={guildIcon(item.id, item.icon)} quality={100} className="rounded-circle" />
-											</Span>
-										</div>
-										<span className={`ml-2 ${utilStyles.fontType2} ${utilStyles.colorAdjust2}`}>{item.name}</span>
-									</div>
-									<div className="ml-1 flex-shrink-0 d-inline-block">
-										<a
-											className={`${utilStyles.fontType12} ${item.m ? studioStyles.roomTag : studioStyles.addTag} text-uppercase d-inline-block`}
-											href={item.m ? `/javstation/${item.id}` : InviteURL(item.id, "javstudio")}
-										>
-											<span className="d-flex justify-content-center align-items-center">
-												<span>{item.m ? "Go to javstation" : "Add javking"}</span>
-												<span className={studioStyles.iconComponent}>
-													<FontAwesomeIcon icon={icon(faAngleRight)} width={20} height={20} className={studioStyles.icon} />
-												</span>
-											</span>
-										</a>
-									</div>
-								</li>
-							))}
-						</ul>
+						<TruncatedList guildList={guildList} />
 					</div>
 				</div>
 			</main>

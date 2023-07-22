@@ -21,13 +21,18 @@ export class SocketWrapper {
 	}
 
 	// update JavBot with JavStation events
-	emit(op, ...data) {
+	async emit(op, ...data) {
 		// this.socket.emit(op, JSON.stringify({ ...data, ...this.sid }));
-		fetch(WS_URL(op, this.token, ...data), { method: "POST" });
+		return fetch(WS_URL(op, this.token, ...data), { method: "POST" }).catch(console.error);
 	}
 
-	emitJSON(op, data, callback) {
-		fetch(WS_URL(op), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(callback);
+	emitJSON(op, data, ...callbacks) {
+		fetch(WS_URL(op), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
+			.then((response) => {
+				if (!response.ok) throw new Error("WS API not responding.");
+				callbacks.forEach((callback) => callback());
+			})
+			.catch(console.error);
 	}
 
 	// update JavStation with JavBot events

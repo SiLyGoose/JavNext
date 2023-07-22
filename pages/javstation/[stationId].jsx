@@ -1,31 +1,38 @@
 import styles from "../../styles/javstation.module.css";
 import utilStyles from "../../styles/utils.module.css";
+import headerStyles from "../../styles/header.module.css";
 
 import Canvas from "../../components/global/page/canvas";
 import Header from "../../components/global/page/header";
 import { API_URL, WS_URL } from "../../components/global/util/url";
 import { Span } from "../../components/global/page/span";
 import Image from "../../components/global/page/image";
-import { guildIcon } from "../../components/global/util/icon";
+import { guildIcon, userIcon } from "../../components/global/util/icon";
 import { SocketWrapper } from "../../components/socket/SocketWrapper";
+import { developDynamicAnimation, dynamicClick, dynamicPullUp, effectType, materializeEffect } from "../../components/global/page/animations";
+import { hexToRGBA } from "../../components/global/util/color";
+import { useToken } from "../../components/global/token/TokenContext";
+import { humanizeMs, throttle, updateStyle } from "../../components/global/util/qol";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { faBackwardStep, faBars, faChartLine, faForwardStep, faMagnifyingGlass, faPause, faPlay, faRepeat, faShuffle, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faBackwardStep, faBars, faChartLine, faEllipsisVertical, faForwardStep, faHeart, faMagnifyingGlass, faPause, faPlay, faRepeat, faShuffle, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core";
 import { v4 as uuidv4 } from "uuid";
 import clsx from "clsx";
-import { humanizeMs, throttle, updateStyle } from "../../components/global/util/qol";
-import { useToken } from "../../components/global/token/TokenContext";
+import Marquee from "react-fast-marquee";
 // Palette to create dynamic background based on video thumbnail (MOBILE ONLY)
-// import { usePalette } from "react-palette";
+import { usePalette as findPalette } from "react-palette";
+import { faYoutube } from "@fortawesome/free-brands-svg-icons";
 
 function JavStation() {
 	// const url = "https://i.ytimg.com/vi/aVatpxBTfZs/maxresdefault.jpg";
 
 	const [socket, setSocket] = useState(null);
+	const [avatar, setAvatar] = useState(null);
+	const [globalName, setGlobalName] = useState(null);
 	// "dropdown" for guild list
 	const [guildListExpanded, setGuildListExpanded] = useState(true);
 	const [mutualList, setMutualList] = useState([]);
@@ -70,6 +77,44 @@ function JavStation() {
 
 	// same cursor as used in backend
 	const [stationPosition, setStationPosition] = useState(0);
+
+	const [winWidth, setWinWidth] = useState(0);
+	const [winHeight, setWinHeight] = useState(0);
+
+	// determines whether or not the card for station is popped up
+	const [stationCard, setStationCard] = useState(true);
+	const [stationCardDeactive, setStationCardDeactive] = useState(false);
+	// determines whether or not the lower pullup card is popped up
+	const [stationPlus, setStationPlus] = useState(false);
+	const [stationPlusDeactive, setStationPlusDeactive] = useState(false);
+	// up next/lyrics
+	const [mobStationQueueOption, setMobStationQueueOption] = useState(false);
+	const [mobStationLyricOption, setMobStationLyricOptions] = useState(false);
+	// determines whether options is popped up
+	const [mobStationOptions, setMobStationOptions] = useState(false);
+	const [mobStationOptionsDeactive, setMobStationOptionsDeactive] = useState(false);
+	// index to retrieve station for popup options
+	const [mobStationIndex, setMobStationIndex] = useState(0);
+	// determines whether options are for guild list or music player
+	const [mobStationGuildOption, setMobStationGuildOption] = useState(false);
+
+	const optionRef = useRef(null);
+	const plusRef = useRef(null);
+
+	// mobile marquee title text
+	const marqueeRef = useRef(null);
+
+	const [palette, setPalette] = useState(null);
+	var { data } = findPalette(queueData[stationPosition]?.thumbnail);
+
+	useEffect(() => {
+		setPalette(data);
+		const root = document.documentElement;
+		// ["darkVibrant", "vibrant"].forEach(p => root.style.setProperty(`--mob-palette-${p}`, hexToRGBA(data[p], .3)));
+		root.style.setProperty("--mob-palette-darkVibrant", hexToRGBA(data?.darkVibrant, 0.4));
+		root.style.setProperty("--mob-palette-vibrant", hexToRGBA(data?.vibrant, 0.3));
+		root.style.setProperty("--mob-palette-vibrant-p50", hexToRGBA(data?.vibrant, 0.45));
+	}, [data]);
 
 	const router = useRouter();
 	// allows Next.js to grab /javstation/[stationId]
@@ -180,34 +225,47 @@ function JavStation() {
 			.then((response) => response.json())
 			.then((data) => {
 				const {
+					id,
 					d: {
+						avatar,
+						username,
 						guild: { mutualList },
 					},
 				} = data;
 				setMutualList(mutualList);
+				setGlobalName(username);
+				setAvatar(`https://cdn.discordapp.com/avatars/${id}/${avatar}.png`);
 			})
 			.catch((error) => {
 				console.error(error);
 				router.replace("/javstudio");
 			});
 
-		fetch(API_URL("voice-member-data", { token, stationId }))
-			.then((response) => response.json())
-			.then((data) => {
-				const { userChannel, botChannel } = data;
-				setVoiceData({ userChannel, botChannel });
-			})
-			.catch(console.error);
-
-		async function initializeStation() {
+		function initializeStation() {
 			console.log("Added client ::", socketWrapper.socket.id);
 			console.log("Client jAuth ::", token, stationId);
 			return socketWrapper.emit("stationAccessed");
 		}
 
+		function initializeVoice() {
+			return socketWrapper
+				.emit("voiceAccessed", stationId)
+				.then((response) => response.json())
+				.then((data) => {
+					console.log("voiceCheck", data);
+					if (!data) return;
+					const { userChannel, botChannel } = data;
+					setVoiceData({ userChannel, botChannel });
+				})
+				.catch((error) => {
+					console.error(error);
+					setVoiceData({});
+				});
+		}
+
 		// Initialize StationClient in JavBot and retrieve details through POST request (JavBot returns with /socketEmit POST request)
 		socketWrapper.socket.on("connect", () => {
-			socketWrapper.emitJSON("add-client", { token, stationId, socketId: socketWrapper.socket.id }, initializeStation);
+			socketWrapper.emitJSON("add-client", { token, stationId, socketId: socketWrapper.socket.id }, initializeStation, initializeVoice);
 		});
 
 		// .catch((e) => console.error("ADD_CLIENT ERROR ::", e));
@@ -218,7 +276,7 @@ function JavStation() {
 			setVoiceData(data);
 		};
 
-		// { q: [ { id, url, thumbnail, title, durationMs,
+		// { q: [ { id, url, thumbnail, title, channel, durationMs,
 		// requester: { username, id, avatar } } ] }
 		// username and avatar set for immediate use
 		const handleTracksAdded = (data) => {
@@ -226,7 +284,7 @@ function JavStation() {
 		};
 
 		// trackStarted data == trackEnded data
-		// { id, position, track: { id, url, title, thumbnail, durationMs, requester: { id, username, avatar } } }
+		// { id, position, track: { id, url, title, channel, thumbnail, durationMs, requester: { id, username, avatar } } }
 		const handleTrackStarted = (data) => {
 			setStationPosition(data.position);
 			stationPositionMs.current = 0;
@@ -315,7 +373,8 @@ function JavStation() {
 		[labelContainerRef, inputSliderRef].forEach((ref) => updateStyle(ref, "left", `${newValue}%`));
 		[inputContainerRef].forEach((ref) => updateStyle(ref, "width", `${newValue}%`));
 
-		if (trackDataTime?.current) trackDataTime.current.innerHTML = `${humanizeMs(stationPositionMs.current)} / ${humanizeMs(stationDurationMs.current)}`;
+		if (trackDataTime?.current)
+			trackDataTime.current.innerHTML = winWidth >= 1024 ? `${humanizeMs(stationPositionMs.current)} / ${humanizeMs(stationDurationMs.current)}` : humanizeMs(stationPositionMs.current);
 	};
 
 	// update slider position by user
@@ -370,8 +429,102 @@ function JavStation() {
 		};
 	}, [stationPaused, sliderDragging]);
 
+	useEffect(() => {
+		const handleResize = () => {
+			setWinWidth(window.innerWidth);
+			setWinHeight(window.innerHeight);
+		};
+
+		// closes mobile station options if click is outside of box
+		const handleClickOutside = (event) => {
+			if (optionRef.current && !optionRef.current.contains(event.target)) {
+				setMobStationOptionsDeactive(true);
+				setTimeout(() => {
+					setMobStationOptions(false);
+				}, 500);
+			}
+		};
+
+		// if (plusRef.current) {
+		// 	developDynamicAnimation(plusRef);
+		// }
+
+		window.addEventListener("resize", handleResize);
+		document.addEventListener("click", handleClickOutside);
+
+		// initial width
+		setWinWidth(window.innerWidth);
+		setWinHeight(window.innerHeight);
+
+		return () => {
+			window.removeEventListener("resize", handleResize);
+			document.removeEventListener("click", handleClickOutside);
+		};
+	}, []);
+
 	const handleGuildExpanded = () => {
 		setGuildListExpanded(!guildListExpanded);
+	};
+
+	const createMobGuildList = () => {
+		return (
+			<div className={`container p-3 ${clsx({ [utilStyles.zN999]: stationCard || mobStationOptions })}`}>
+				<div className="d-flex w-100 my-4 col align-items-center justify-content-center">
+					<div className={styles.mobStationUserIcon}>
+						<img className="rounded-circle img-fluid" src={avatar} />
+					</div>
+					<div className="d-flex flex-column w-100 ml-3">
+						<div className="row w-100 mx-auto">
+							<span className={`text-uppercase ${utilStyles.colorAdjust1} ${utilStyles.fontType12}`}>Stations to get you started</span>
+						</div>
+						<div className="row w-100 mx-auto">
+							<span className={utilStyles.defaultFamily}>
+								<h3 className="mb-0">Welcome {globalName}</h3>
+							</span>
+						</div>
+					</div>
+				</div>
+				<ul className="d-flex w-100 flex-column align-items-center">
+					{mutualList.map((item, index) => (
+						<li
+							key={item.id}
+							className={`row w-100 py-2 ${clsx({ [styles.guildActive]: item.id === stationId })}`}
+							onClick={() => {
+								if (item.id != stationId) router.replace(`/javstation/${item.id}`);
+								handleCardActive();
+							}}
+						>
+							<div className="col-3">
+								<div className={styles.mobStationGuildIcon}>
+									<img className="rounded img-fluid" src={guildIcon(item.id, item.icon)} />
+								</div>
+							</div>
+							{/* my-2 */}
+							<div className="d-flex col px-0 my-auto justify-space-between">
+								<span className={utilStyles.fontType3}>{item.name}</span>
+								<div
+									className={`d-flex h-100 ml-auto align-items-center justify-content-center ${utilStyles.mn24px} ${styles.mobGuildListContainer}`}
+									onClick={(event) => {
+										event.stopPropagation();
+										materializeEffect(event, effectType.center);
+									}}
+								>
+									<FontAwesomeIcon
+										icon={faEllipsisVertical}
+										onClick={() => {
+											setMobStationIndex(index);
+											setMobStationGuildOption(true);
+											setMobStationOptions(true);
+											setMobStationOptionsDeactive(false);
+										}}
+									/>
+								</div>
+							</div>
+						</li>
+					))}
+				</ul>
+			</div>
+		);
 	};
 
 	const createGuildList = () => {
@@ -428,11 +581,204 @@ function JavStation() {
 		);
 	};
 
+	const stationGuildOptions = [{ id: "stationGuildOptionFavorite", label: "Favorite", icon: faHeart }];
+
+	const stationOptions = [{ id: "stationOptionSearch", label: "Search", icon: faMagnifyingGlass }];
+
+	const createMobStationOptions = () => {
+		const options = mobStationGuildOption ? stationGuildOptions : stationOptions;
+		const mutual = mobStationGuildOption ? mutualList[mobStationIndex] : mutualList.find((m) => m.id === stationId);
+		if (!mutual) return;
+
+		return (
+			<>
+				<div
+					className={`${utilStyles.z99} ${styles.optionsCoverContainer} ${clsx({
+						[styles.activeContainer]: mobStationOptions,
+						[styles.deactiveContainer]: mobStationOptionsDeactive,
+					})}`}
+				/>
+				<div
+					className={`container d-flex flex-column py-0 px-0 align-items-center ${utilStyles.z999} ${styles.mobStationOptionsContainer} ${clsx({
+						[styles.activeContainer]: mobStationOptions,
+						[styles.deactiveContainer]: mobStationOptionsDeactive,
+					})}`}
+					ref={optionRef}
+				>
+					<div className={`row w-100 py-2 ${styles.mobStationGuild}`}>
+						<div className="col">
+							<div className="d-flex">
+								<div className={`d-flex align-items-center justify-content-center ${styles.mobStationGuildIcon}`}>
+									<img src={guildIcon(mutual.id, mutual.icon)} className="rounded img-fluid" />
+								</div>
+								<div className="align-self-center my-auto px-3">
+									<span className={`${utilStyles.fontType3}`}>{mutual.name}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					{options.map((item, index) => (
+						<div key={item.id} className={`row w-100 py-2 mx-auto ${styles.mobStationOption}`} onClick={(event) => materializeEffect(event, effectType.radial)}>
+							<div className="col">
+								<div className="d-flex">
+									<div className={`d-flex align-items-center justify-content-center ${utilStyles.mn36px}`}>
+										<FontAwesomeIcon icon={item.icon} />
+									</div>
+									<div className={`align-self-center my-auto px-3 ${utilStyles.fontType2} ${styles.WIP}`}>{item.label}</div>
+								</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</>
+		);
+	};
+
+	const stationPlusOptions = [
+		{ id: "stationPlusUpNext", label: "Up Next" },
+		{ id: "stationPlusLyrics", label: "Lyrics" },
+	];
+
+	const createMobStationPlusOptions = () => {
+		return (
+			<>
+				<div
+					className={`w-100 ${utilStyles.zN1} ${clsx({
+						[styles.coverContainer]: stationPlus,
+						[styles.activeContainer]: stationPlus,
+						[styles.deactiveContainer]: stationPlusDeactive,
+					})}`}
+				/>
+				<div
+					className={`rounded-top rounded-lg pt-3 ${styles.mobStationPlusOptionsContainer} ${clsx({
+						[styles.activeContainer]: stationCard,
+						[styles.deactiveContainer]: stationCardDeactive,
+						[styles.activeOptionsContainer]: stationPlus,
+						[styles.deactiveOptionsContainer]: stationPlusDeactive,
+						[utilStyles.z9]: stationCard,
+						["py-3"]: winHeight >= 800,
+					})}`}
+					// ref={plusRef}
+					onClick={(event) => {
+						developDynamicAnimation(event);
+						if (stationPlus)
+							dynamicClick(event, () => {
+								setStationPlusDeactive(true);
+								setTimeout(() => {
+									setStationPlus(false);
+									setMobStationQueueOption(false);
+									setMobStationLyricOptions(false);
+								}, 500);
+							});
+					}}
+				>
+					<div className="d-flex justify-content-center justify-space-between mx-auto px-3">
+						{stationPlusOptions.map((item, index) => {
+							const optionActive = (index === 0 && mobStationQueueOption) || (index === 1 && mobStationLyricOption);
+							return (
+								<div
+									key={item.id}
+									className={`text-center text-uppercase mt-2 py-2 w-100 overflow-hidden ${utilStyles.colorAdjust4} ${styles.mobStationPlusOptions} ${clsx({
+										[styles.activeContainer]: optionActive,
+										[utilStyles.colorAdjust3]: optionActive,
+									})}`}
+									onClick={(event) => {
+										materializeEffect(event, effectType.radial);
+										setStationPlus(true);
+										setStationPlusDeactive(false);
+										setMobStationQueueOption(index === 0);
+										setMobStationLyricOptions(index === 1);
+									}}
+								>
+									<span className={`${utilStyles.fontType2} ${clsx({ [styles.WIP]: index === 1 })}`}>{item.label}</span>
+								</div>
+							);
+						})}
+					</div>
+					{stationPlus && (
+						<div
+							className={`container d-flex flex-column py-0 px-0 align-items-center ${utilStyles.z999} ${styles.mobStationPlusContainer} ${clsx({
+								[styles.activeContainer]: mobStationOptions,
+								[styles.deactiveContainer]: mobStationOptionsDeactive,
+							})}`}
+						>
+							{mobStationQueueOption &&
+								queueData.map((item, index) => {
+									if (stationPosition < index && !stationRepeat[1]) return;
+
+									return (
+										<div key={item.id} className={`row w-100 py-2 mx-auto ${styles.mobStationOption}`} onClick={(event) => materializeEffect(event, effectType.radial)}>
+											<div className="col">
+												<div className="d-flex">
+													<div className={`d-flex align-items-center justify-content-center ${utilStyles.mn36px} ${styles.mobStationOptionWrapper}`}>
+														<img src={item.thumbnail} className="rounded img-fluid" />
+													</div>
+													<div className="align-self-center my-auto px-3">
+														<div className="d-flex flex-column">
+															{/* make sure these 2 are centered vertically */}
+															<span className={utilStyles.fontType2}>{item.title}</span>
+															<span className={`${utilStyles.fontType2} ${utilStyles.colorAdjust4}`}>{item.channel}</span>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									);
+								})}
+						</div>
+					)}
+				</div>
+			</>
+		);
+	};
+
+	// basically same as createQueue for desktop
+	// uses the same pattern for station option popup card
+	// const createMobStationPlus = () => {
+	// 	return (
+	// 		<>
+	// 			<div
+	// 				className={`${utilStyles.z99} ${styles.optionsCoverContainer} ${clsx({
+	// 					[styles.activeContainer]: mobStationOptions,
+	// 					[styles.deactiveContainer]: mobStationOptionsDeactive,
+	// 				})}`}
+	// 			/>
+	// 			{/* replace with header multi reference handler */}
+	// 			<div
+	// 				className={`container d-flex flex-column py-0 px-0 align-items-center ${utilStyles.z999} ${styles.mobStationPlusContainer} ${clsx({
+	// 					[styles.activeContainer]: mobStationOptions,
+	// 					[styles.deactiveContainer]: mobStationOptionsDeactive,
+	// 				})}`}
+	// 				ref={plusRef}
+	// 			>
+	// 				{mobStationQueueOption &&
+	// 					queueData.map((item, index) => (
+	// 						<div key={item.id} className={`row w-100 py-2 mx-auto ${styles.mobStationOption}`} onClick={(event) => materializeEffect(event, effectType.radial)}>
+	// 							<div className="col">
+	// 								<div className="d-flex">
+	// 									<div className={`d-flex align-items-center justify-content-center ${utilStyles.mn36px} ${styles.mobStationOptionWrapper}`}>
+	// 										<img src={item.thumbnail} className="rounded img-fluid" />
+	// 									</div>
+	// 									<div className="align-self-center my-auto px-3">
+	// 										<div className="d-flex flex-column">
+	// 											<span className={utilStyles.fontType2}>{item.title}</span>
+	// 											<span className={`${utilStyles.fontType2} ${utilStyles.colorAdjust1}`}>{item.channel}</span>
+	// 										</div>
+	// 									</div>
+	// 								</div>
+	// 							</div>
+	// 						</div>
+	// 					))}
+	// 			</div>
+	// 		</>
+	// 	);
+	// };
+
 	const createQueue = () => {
 		return (
 			<>
 				{/* ${styles.stationQueueInfo} */}
-				<div className={`d-flex align-items-center justify-content-between `}>
+				<div className={`d-flex align-items-center justify-content-between`}>
 					<p className={`text-uppercase ${utilStyles.fontType12} ${utilStyles.fontAdjust3}`}>{stationRepeat[1] ? queueData.length : queueData.length - stationPosition} songs in queue</p>
 					{/* <div> clear player </div> */}
 				</div>
@@ -470,25 +816,23 @@ function JavStation() {
 													</Span>
 													<span className={`ml-2 ${utilStyles.colorAdjust1} ${styles.stationTrackInfoRequester}`}>{username}</span>
 												</div>
-												{(index > stationPosition ||
-													(index < stationPosition - 1 && stationRepeat[1])) &&
-													(
-														<div className="flex-shrink-0">
-															<button
-																className="position-relative bg-transparent"
-																onClick={() => {
-																	handleTrackRemoved(index);
-																}}
-															>
-																<FontAwesomeIcon
-																	icon={icon(faXmark)}
-																	width={16}
-																	height={16}
-																	className={`d-block h-100 w-100 ${utilStyles.colorAdjust1} ${styles.stationTrackRemoveBtn}`}
-																/>
-															</button>
-														</div>
-													)}
+												{(index > stationPosition || (index < stationPosition && stationRepeat[1])) && (
+													<div className="flex-shrink-0">
+														<button
+															className="position-relative bg-transparent"
+															onClick={() => {
+																handleTrackRemoved(index);
+															}}
+														>
+															<FontAwesomeIcon
+																icon={icon(faXmark)}
+																width={16}
+																height={16}
+																className={`d-block h-100 w-100 ${utilStyles.colorAdjust1} ${styles.stationTrackRemoveBtn}`}
+															/>
+														</button>
+													</div>
+												)}
 											</div>
 										</div>
 									</div>
@@ -516,6 +860,182 @@ function JavStation() {
 		{ id: "stationOptionSearch", label: "Search", icon: faMagnifyingGlass },
 		{ id: "stationOptionActivity", label: "Activity", icon: faChartLine },
 	];
+
+	const handleMarqueeFinish = () => {
+		const marqueeContainer = document.querySelector(".marquee-container");
+		const marqueeChildren = marqueeContainer.querySelectorAll(".marquee");
+
+		marqueeChildren.forEach((marquee) => {
+			marquee.style.setProperty("--play", "paused");
+		});
+
+		setTimeout(() => {
+			marqueeChildren.forEach((marquee) => {
+				marquee.style.setProperty("--play", "running");
+			});
+		}, 1000);
+	};
+
+	const handleCardActive = () => {
+		setStationCardDeactive(false);
+		setStationCard(true);
+	};
+
+	const handleCardDeactive = () => {
+		setStationCardDeactive(true);
+		setTimeout(() => {
+			setStationCard(false);
+		}, 500);
+	};
+
+	const createMobStation = () => {
+		return (
+			<>
+				<div
+					className={`w-100 ${utilStyles.zN99} ${clsx({
+						[styles.coverContainer]: stationCard,
+						[styles.coverCard]: stationCard,
+						[styles.activeContainer]: stationCard,
+						[styles.deactiveContainer]: stationCardDeactive,
+					})}`}
+				></div>
+				<div
+					className={`container px-4 h-100 my-auto d-flex flex-column ${styles.mobStationContainer} ${clsx({
+						[styles.activeContainer]: stationCard,
+						[styles.deactiveContainer]: stationCardDeactive,
+						[utilStyles.z99]: stationCard && !mobStationOptions,
+						[utilStyles.zN99]: mobStationOptions || stationPlus,
+						[styles.stationOptionPlus]: stationPlus,
+						// justify-content-between
+						["py-3 justify-content-center"]: winHeight >= 800,
+						["py-2"]: true,
+					})}`}
+				>
+					<div className="row w-100 mx-auto pb-3">
+						<div className="col px-0">
+							<span className="d-flex h-100 align-items-center justify-content-start">
+								<div
+									className={`d-flex h-100 ${utilStyles.mnw24px} ${styles.mobCardMutator}`}
+									onClick={(event) => {
+										materializeEffect(event, effectType.center);
+										setStationPlusDeactive(false);
+									}}
+								>
+									<button className="d-flex bg-transparent align-items-center justify-content-center mt-1 mb-auto mx-auto" type="button" onClick={handleCardDeactive}>
+										<span className={`mx-auto ${headerStyles.dropdownBoxArrow} ${styles.dropdownBoxArrow}`} />
+									</button>
+								</div>
+								<div className={`d-flex h-100 w-100`}>
+									<div className="align-self-center mx-auto text-truncate">
+										<div className={`px-3 py-1 rounded-pill ${styles.mobStationWrapper} ${clsx({ [styles.activeWrapper]: voiceData.userChannel?.voiceId && stationCard })}`}>
+											{mutualList.find((m) => m.id === stationId).name}
+										</div>
+									</div>
+								</div>
+								<div
+									className={`d-flex h-100 ${utilStyles.mnw24px} ${styles.mobCardMutator}`}
+									onClick={(event) => {
+										event.stopPropagation();
+										materializeEffect(event, effectType.center);
+										setMobStationGuildOption(false);
+										setMobStationOptions(true);
+										setMobStationOptionsDeactive(false);
+									}}
+								>
+									<FontAwesomeIcon className="align-self-center align-items-right ml-auto mx-auto" icon={faEllipsisVertical} />
+								</div>
+							</span>
+						</div>
+					</div>
+					{queueData.length > 0 && (
+						<>
+							<div className={`row pb-3 align-self-center mx-auto w-100 ${clsx({ ["pt-3"]: winHeight >= 800 })}`}>
+								<div className="col-md-6 offset-md-3">
+									<div className={styles.thumbnailContainer}>
+										<img src={queueData[stationPosition].thumbnail} className="rounded" />
+									</div>
+								</div>
+							</div>
+							<div className="row pb-3">
+								<div className={`d-flex flex-column w-75 align-items-center mx-auto col-md-6 offset-md-3 ${styles.titleContainer}`}>
+									<Marquee className={`pb-3 ${styles.maskedOverflow}`} delay={3} speed={25} onCycleComplete={handleMarqueeFinish} ref={marqueeRef}>
+										<h4 className={`mr-5 mb-0 ${styles.slidingText}`}>{queueData[stationPosition].title}</h4>
+									</Marquee>
+									<span className={`text-center ${utilStyles.colorAdjust1}`}>{queueData[stationPosition].channel}</span>
+								</div>
+							</div>
+							<div className="row pb-3 align-items-center flex-column">
+								{createSlider()}
+								<div className={`d-flex justify-space-between pt-2 ${styles.stationControllerSlider}`}>
+									<span ref={trackDataTime} className={`${utilStyles.colorAdjust1}`}>
+										0:00
+									</span>
+									<span className={`ml-auto ${utilStyles.colorAdjust1}`}>{humanizeMs(stationDurationMs.current)}</span>
+								</div>
+							</div>
+							<div className={`row ${clsx({ ["pb-3"]: winHeight >= 800 })}`}>
+								<div className={`d-flex align-items-center justify-content-center mx-auto ${styles.stationMutatorContainer}`}>
+									<div className={`d-flex ${styles.stationMutatorWrapper}`} onClick={(event) => materializeEffect(event, effectType.center)}>
+										<FontAwesomeIcon
+											icon={icon(queueMutators[1].icon)}
+											width={48}
+											height={48}
+											style={{ transform: "scale(1.5)" }}
+											className={`my-auto ${clsx({ [styles.activeEffect]: stationShuffled })}`}
+											onClick={queueMutators[1].handler}
+										/>
+									</div>
+									{trackMutators.map((item, index) => (
+										<div
+											key={item.id}
+											className={`d-flex ${styles.stationMutatorWrapper} ${clsx({ [styles.pauseMutatorWrapper]: index == 1 })}`}
+											onClick={(event) => materializeEffect(event, effectType.center)}
+										>
+											<FontAwesomeIcon
+												icon={icon(index === 1 && stationPaused ? faPlay : item.icon)}
+												width={48}
+												height={48}
+												style={{ transform: "scale(1.5)" }}
+												className={`my-auto`}
+												onClick={trackMutators[index].handler}
+											/>
+										</div>
+									))}
+									<div className={`d-flex ${styles.stationMutatorWrapper}`} onClick={(event) => materializeEffect(event, effectType.center)}>
+										<FontAwesomeIcon
+											icon={icon(queueMutators[0].icon)}
+											width={48}
+											height={48}
+											style={{ transform: "scale(1.5)" }}
+											className={`my-auto ${clsx({ [styles.activeAllEffect]: stationRepeat[1], [styles.activeEffect]: stationRepeat[0] })}`}
+											onClick={queueMutators[0].handler}
+										/>
+									</div>
+								</div>
+							</div>
+						</>
+					)}
+					{queueData.length < 1 && (
+						<div className={`row h-100 mt-5`}>
+							<div className="col">
+								<div className="d-flex flex-column w-100 align-items-center mx-auto">
+									<img className="mx-auto w-100" src={"/images/emptyQueue.png"} />
+									<div className={`text-center mb-2 ${utilStyles.fontType6}`}>No songs in queue</div>
+									<span className={`text-uppercase ${utilStyles.fontType1}`}>
+										{/* <span className="text-danger">YT</span> */}
+										<div className="d-flex flex-shrink-0 align-items-center my-auto">
+											<span className={utilStyles.colorAdjust1}>Supports</span>
+											<FontAwesomeIcon icon={faYoutube} width={20} height={20} className="ml-1 w-100 h-100" style={{ color: "#FF0000" }} />
+										</div>
+									</span>
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+			</>
+		);
+	};
 
 	const createStation = () => {
 		return (
@@ -550,6 +1070,61 @@ function JavStation() {
 		);
 	};
 
+	const createMobUnattendedStation = () => {
+		if (!mutualList.length) return;
+
+		return (
+			<div
+				className={`container px-4 py-3 ${styles.unattendedContainer} ${clsx({
+					[styles.activeContainer]: stationCard,
+					[styles.coverContainer]: stationCard,
+					[styles.deactiveContainer]: stationCardDeactive,
+					[utilStyles.z99]: stationCard && !mobStationOptions,
+					[utilStyles.zN99]: mobStationOptions,
+				})}`}
+			>
+				<div className="row pb-3">
+					<div className="col-md-6 offset-md-3">
+						<span className="d-flex h-100 align-items-center justify-content-start">
+							<div className={`d-flex h-100 ${utilStyles.mnw24px} ${styles.mobCardMutator}`} onClick={(event) => materializeEffect(event.currentTarget, effectType.center)}>
+								<button className="d-flex bg-transparent align-items-center justify-content-center mt-1 mb-auto mx-auto" type="button" onClick={handleCardDeactive}>
+									<span className={`mx-auto ${headerStyles.dropdownBoxArrow} ${styles.dropdownBoxArrow}`} />
+								</button>
+							</div>
+							<div className={`d-flex h-100 w-100`}>
+								<div className="align-self-center mx-auto text-truncate">
+									<div className={`px-3 py-1 rounded-pill ${styles.mobStationWrapper} ${clsx({ [styles.activeWrapper]: voiceData.userChannel?.voiceId && stationCard })}`}>
+										{mutualList.find((m) => m.id === stationId).name}
+									</div>
+								</div>
+							</div>
+							<div
+								className={`d-flex h-100 ${utilStyles.mnw24px} ${styles.mobCardMutator}`}
+								onClick={(event) => {
+									event.stopPropagation();
+									materializeEffect(event, effectType.center);
+									setMobStationGuildOption(false);
+									setMobStationOptions(true);
+									setMobStationOptionsDeactive(false);
+								}}
+							>
+								<FontAwesomeIcon className="align-self-center align-items-right ml-auto mx-auto" icon={faEllipsisVertical} />
+							</div>
+						</span>
+					</div>
+				</div>
+				<div className={`text-center ${styles.stationUnattended}`}>
+					<Span Px={200}>
+						<Image alt="station unattended" src="/images/JavKing_VC_DISCONNECTED.png" quality={100} />
+					</Span>
+					<h2 className={`${utilStyles.fontType15}`}>
+						Please join a <span style={{ color: "#7289da" }}>Discord</span> voice channel to manage JavStation
+					</h2>
+				</div>
+			</div>
+		);
+	};
+
 	const createUnattendedStation = () => {
 		return (
 			<div className={`text-center ${styles.stationUnattended}`}>
@@ -557,7 +1132,7 @@ function JavStation() {
 					<Image alt="station unattended" src="/images/JavKing_VC_DISCONNECTED.png" quality={100} />
 				</Span>
 				<h2 className={`${utilStyles.fontType15}`}>
-					Please join a <span style={{ color: "#7289da" }}>Discord</span> voice channel to attend JavStation
+					Please join a <span style={{ color: "#7289da" }}>Discord</span> voice channel to manage JavStation
 				</h2>
 			</div>
 		);
@@ -619,7 +1194,7 @@ function JavStation() {
 					<span className={styles.inputRangeMax}>
 						<span className={styles.inputRange}>{stationDurationMs.current}</span>
 					</span>
-					<div className={styles.inputSlider} ref={inputSliderRef} style={{ position: "absolute" }} onMouseDown={handleSliderMouseDown} />
+					<div className={styles.inputSlider} ref={inputSliderRef} style={{}} onMouseDown={handleSliderMouseDown} />
 				</div>
 			</div>
 		);
@@ -627,62 +1202,75 @@ function JavStation() {
 
 	return (
 		<div className="d-flex h-100 flex-column">
-			<Canvas />
-			<Header />
+			{winWidth >= 768 && <Canvas />}
+			<Header JavStation={true} />
 
-			<main className={`d-flex overflow-auto h-100 ${styles.stationContainer} ${clsx({ [styles.coverContainer]: !voiceData.userChannel?.voiceId })}`}>
-				{createGuildList()}
-				{voiceData.userChannel?.voiceId ? createStation() : createUnattendedStation()}
-			</main>
+			{winWidth < 768 && (
+				<main className={`d-flex flex-column overflow-auto h-100 ${styles.stationContainer}`}>
+					{createMobGuildList()}
+					{voiceData.userChannel?.voiceId && stationCard ? createMobStation() : stationCard ? createMobUnattendedStation() : ""}
+					{stationCard && queueData.length > 0 ? createMobStationPlusOptions() : ""}
+					{mobStationOptions && createMobStationOptions()}
+					{/* {stationPlus && createMobStationPlus()} */}
+				</main>
+			)}
 
-			{/*  style={{ background: usePalette(url).data.vibrant }} */}
-			<footer className={`mastfoot d-flex flex-column mb-0 mt-auto w-100 ${styles.stationController}`}>
-				{queueData.length ? createSlider() : undefined}
-				<div className={`d-flex flex-wrap h-100 align-items-center ${styles.stationControllerWrapper}`}>
-					<div className={styles.trackDataSection}>{stationPosition < queueData.length ? createTrackData() : createEmptyTrackData()}</div>
-					<div
-						className={`d-flex justify-content-center align-items-center ${styles.trackControlSection} ${styles.trackDataSection} ${
-							queueData.length ? styles.trackAvailable : styles.trackEmpty
-						}`}
-					>
-						{trackMutators.map((item, index) => (
-							<div key={item.id}>
-								<button className={`btn-group ${styles.trackMutator}`} onClick={item.handler}>
-									<FontAwesomeIcon
-										icon={icon(index === 1 && stationPaused ? faPlay : item.icon)}
-										width={index === 1 ? 40 : 24}
-										height={index === 1 ? 40 : 24}
-										className={`d-block w-100 h-100 ${styles.mutatorBtn} ${index === 1 && stationPaused ? styles.activeEffect : undefined}`}
-										style={{ transform: "scale(0.8)" }}
-									/>
-								</button>
+			{winWidth >= 768 && (
+				<>
+					<main className={`d-flex overflow-auto h-100 ${styles.stationContainer} ${clsx({ [styles.coverContainer]: !voiceData.userChannel?.voiceId })}`}>
+						{createGuildList()}
+						{voiceData.userChannel?.voiceId ? createStation() : createUnattendedStation()}
+					</main>
+
+					<footer className={`mastfoot d-flex flex-column mb-0 mt-auto w-100 ${styles.stationController}`}>
+						{queueData.length ? createSlider() : undefined}
+						<div className={`d-flex flex-wrap h-100 align-items-center ${styles.stationControllerWrapper}`}>
+							<div className={styles.trackDataSection}>{stationPosition < queueData.length ? createTrackData() : createEmptyTrackData()}</div>
+							<div
+								className={`d-flex justify-content-center align-items-center ${styles.trackControlSection} ${styles.trackDataSection} ${
+									queueData.length ? styles.trackAvailable : styles.trackEmpty
+								}`}
+							>
+								{trackMutators.map((item, index) => (
+									<div key={item.id}>
+										<button className={`btn-group ${styles.trackMutator}`} onClick={item.handler}>
+											<FontAwesomeIcon
+												icon={icon(index === 1 && stationPaused ? faPlay : item.icon)}
+												width={index === 1 ? 40 : 24}
+												height={index === 1 ? 40 : 24}
+												className={`d-block w-100 h-100 ${styles.mutatorBtn} ${clsx({ [styles.activeEffect]: index === 1 && stationPaused })}`}
+												style={{ transform: "scale(0.8)" }}
+											/>
+										</button>
+									</div>
+								))}
 							</div>
-						))}
-					</div>
-					<div
-						className={`d-flex justify-content-end align-items-center ${styles.trackDataSection} ${styles.queueControlSection} ${
-							queueData.length ? styles.trackAvailable : styles.trackEmpty
-						}`}
-					>
-						{queueMutators.map((item, index) => (
-							<div key={item.id} className={`flex-shrink-0 ${styles.queueMutatorWrapper}`}>
-								<button className={`btn-group ${styles.queueMutator}`} onClick={item.handler}>
-									<FontAwesomeIcon
-										icon={icon(item.icon)}
-										width={24}
-										height={24}
-										className={`d-block w-100 h-100 ${styles.mutatorBtn} ${clsx({
-											[styles.activeAllEffect]: index === 0 && stationRepeat[1],
-											[styles.activeEffect]: (index === 1 && stationShuffled) || (index === 0 && stationRepeat[0]),
-										})}`}
-										style={{ transform: "scale(0.8)" }}
-									/>
-								</button>
+							<div
+								className={`d-flex justify-content-end align-items-center ${styles.trackDataSection} ${styles.queueControlSection} ${
+									queueData.length ? styles.trackAvailable : styles.trackEmpty
+								}`}
+							>
+								{queueMutators.map((item, index) => (
+									<div key={item.id} className={`flex-shrink-0 ${styles.queueMutatorWrapper}`}>
+										<button className={`btn-group ${styles.queueMutator}`} onClick={item.handler}>
+											<FontAwesomeIcon
+												icon={icon(item.icon)}
+												width={24}
+												height={24}
+												className={`d-block w-100 h-100 ${styles.mutatorBtn} ${clsx({
+													[styles.activeAllEffect]: index === 0 && stationRepeat[1],
+													[styles.activeEffect]: (index === 1 && stationShuffled) || (index === 0 && stationRepeat[0]),
+												})}`}
+												style={{ transform: "scale(0.8)" }}
+											/>
+										</button>
+									</div>
+								))}
 							</div>
-						))}
-					</div>
-				</div>
-			</footer>
+						</div>
+					</footer>
+				</>
+			)}
 		</div>
 	);
 }

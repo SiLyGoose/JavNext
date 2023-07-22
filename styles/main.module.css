@@ -60,19 +60,36 @@
 
 .container {
 	animation: float 6s ease-in-out infinite;
+	max-width: 150px;
 }
 
-/* @media screen and (min-width: 720px) {
-    .mainButton {
-        max-width: 70%;
-    }
-}
-
-@media screen and (min-width: 960px) {
-	.mainButton {
-		max-width: 45%;
+@media screen and (max-width: 768px) {
+	.container {
+		max-width: 60%;
 	}
-} */
+
+	.main {
+		padding: 5px 0 15px 0;
+	}
+}
+
+@media screen and (min-width: 768px) {
+	.container {
+		max-width: 35%;
+	}
+}
+
+@media screen and (min-width: 1024px) {
+	.container {
+		max-width: 25%;
+	}
+}
+
+@media screen and (min-width: 1440px) {
+	.container {
+		max-width: 20%;
+	}
+}
 
 @media screen and (max-width: 600px) {
 	.mainButton {
