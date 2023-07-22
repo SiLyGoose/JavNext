@@ -93,21 +93,28 @@
 }
 
 .fontAdjust1 {
+	font-family: Poppins, sans-serif;
+	line-height: 1.2;
+	font-style: normal;
 	font-size: 6rem;
 	font-weight: 300;
-	line-height: 1.2;
 	color: #ddaedb;
 	filter: drop-shadow(0 0 5px black);
+
 }
 
 .fontAdjust2 {
+	font-family: Poppins, sans-serif;
+	font-style: normal;
 	letter-spacing: 1.5px;
+
 }
 
 .fontAdjust3 {
+	font-family: Poppins, sans-serif;
+	font-style: normal;
 	letter-spacing: 3.2px;
 }
-
 .colorAdjust1 {
 	color: #ada5b6 !important;
 }

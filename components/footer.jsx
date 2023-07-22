@@ -13,7 +13,7 @@ function Footer() {
 	];
 
 	return (
-		<footer className="mastfoot d-flex w-100 mt-auto justify-content-center">
+		<footer className="mastfoot d-flex w-100 mt-auto justify-content-center align-items-center">
 			<div className={styles.links}>
 				{footerItems.map((item) => (
 					<div key={item.id} className={styles.icon}>

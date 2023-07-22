@@ -28,18 +28,18 @@ function Home() {
 			<Canvas />
 			<main className={`d-flex flex-column inner ${styles.main}`}>
 				{/* needs mobile/tablet responsiveness */}
-				<div className="row align-items-center mx-auto">
+				<div className="row w-100 align-items-center mx-auto">
 					<div className={`${styles.container} container`}>
 						<img src="/images/JavKing_new_FINISHED.png" className="img-fluid" />
 					</div>
 				</div>
-				<div className="row">
-					<div className="col-lg-8 col-md-9 col-sm-12 mx-auto text-center">
+				<div className="row w-100 justify-content-center mx-auto">
+					<div className="container text-center">
 						<h1 className={`${utilStyles.fontAdjust1} display-1 text-lg-center`}>JavKing</h1>
 						<h5 className={`${utilStyles.fontAdjust2} text-lg-center`}>A simple Discord musicbot</h5>
 						<div className="row mx-auto justify-content-center mt-3">
 							{mainItems.map((item) => (
-								<div key={item.id} className={`${styles.mainButton} col-lg-6 col-md-8 col-sm-8 mb-sm-3`}>
+								<div key={item.id} className={`${styles.mainButton} w-75`}>
 									<button type="button" className="btn btn-group btn-lg btn-mobfull btn-block justify-content-center">
 										<a href={item.href}>
 											<div className="d-flex align-items-center">
