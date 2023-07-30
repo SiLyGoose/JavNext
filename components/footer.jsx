@@ -8,7 +8,7 @@ import { faGithub, faDiscord, faTwitch } from "@fortawesome/free-brands-svg-icon
 function Footer() {
 	const footerItems = [
 		{ id: "footerItemDiscord", label: "Discord", href: "https://discord.gg/EXQn6bcqGv", icon: faDiscord },
-		{ id: "footerItemGithub", label: "GitHub", href: "https://github.com/SiLyGoose/JavKing", icon: faGithub },
+		{ id: "footerItemGithub", label: "GitHub", href: "https://github.com/SiLyGoose/JavNext", icon: faGithub },
 		{ id: "footerItemTwitch", label: "Twitch", href: "https://www.twitch.tv/javkingzero", icon: faTwitch },
 	];
 
@@ -17,7 +17,7 @@ function Footer() {
 			<div className={styles.links}>
 				{footerItems.map((item) => (
 					<div key={item.id} className={styles.icon}>
-						<a className={styles.fafaIcon} href={item.href}>
+						<a className={styles.fafaIcon} href={item.href} aria-label={item.label}>
 							<FontAwesomeIcon icon={item.icon} />
 						</a>
 					</div>

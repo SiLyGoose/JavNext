@@ -1,12 +1,12 @@
 /* utility class (text styles) that can be re-used across multiple components */
 .defaultFamily {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	font-style: normal;
 	letter-spacing: normal;
 }
 
 .fontType14 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	font-size: 10px;
 	font-weight: 400;
 	line-height: 1.5;
@@ -17,7 +17,7 @@
 .fontType1,
 .fontType11,
 .fontType12 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	font-size: 12px;
 	font-weight: 400;
 	line-height: 1.5;
@@ -26,7 +26,7 @@
 }
 
 .fontType2 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	font-size: 14px;
 	font-weight: 400;
 	line-height: 1.5;
@@ -37,7 +37,7 @@
 .fontType3,
 .fontType7,
 .fontType13 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	line-height: 1.5;
 	font-style: normal;
 	letter-spacing: normal;
@@ -46,7 +46,7 @@
 }
 
 .fontType4 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	line-height: 1.5;
 	font-style: normal;
 	letter-spacing: normal;
@@ -57,7 +57,7 @@
 .fontType5,
 .fontType6,
 .fontType15 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	line-height: 1.5;
 	font-style: normal;
 	letter-spacing: normal;
@@ -66,7 +66,7 @@
 }
 
 .fontType8 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	line-height: 1.5;
 	font-style: normal;
 	letter-spacing: normal;
@@ -75,7 +75,7 @@
 }
 
 .fontType9 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	line-height: 1.5;
 	font-style: normal;
 	letter-spacing: normal;
@@ -84,7 +84,7 @@
 }
 
 .fontType10 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	line-height: 1.5;
 	font-style: normal;
 	letter-spacing: normal;
@@ -93,7 +93,7 @@
 }
 
 .fontAdjust1 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	line-height: 1.2;
 	font-style: normal;
 	font-size: 6rem;
@@ -104,14 +104,14 @@
 }
 
 .fontAdjust2 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	font-style: normal;
 	letter-spacing: 1.5px;
 
 }
 
 .fontAdjust3 {
-	font-family: Poppins, sans-serif;
+	font-family: var(--font-jPoppins);
 	font-style: normal;
 	letter-spacing: 3.2px;
 }
@@ -148,37 +148,37 @@
 }
 
 .z1 {
-	z-index: 1!important;
+	/* z-index: 1!important; */
 	position: relative!important;
 }
 
 .z9 {
-	z-index: 9!important;
+	/* z-index: 9!important; */
 	position: relative!important;
 }
 
 .z99 {
-	z-index: 99!important;
+	/* z-index: 99!important; */
 	position: relative!important;
 }
 
 .z999 {
-	z-index: 999!important;
+	/* z-index: 999!important; */
 	position: relative!important;
 }
 
 .zN1 {
-	z-index: -1!important;
+	/* z-index: -1!important; */
 	position: absolute!important;
 }
 
 .zN99 {
-	z-index: -99!important;
+	/* z-index: -99!important; */
 	position: absolute!important;
 }
 
 .zN999 {
-	z-index: -999!important;
+	/* z-index: -999!important; */
 	position: absolute!important;
 }
 
@@ -219,6 +219,10 @@
 
 .showAnimation {
 	animation: show 0.5s ease-in-out;
+}
+
+.posAbs {
+	position: absolute!important;
 }
 
 @media screen and (max-width: 600px) {

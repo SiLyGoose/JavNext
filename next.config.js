@@ -17,4 +17,25 @@ module.exports = {
 
 		SOCKET_URL: process.env.SOCKET_URL
 	},
+	images:{
+		domains: ['cdn.discordapp.com']
+	},
+	// eliminate render-blocking resources
+	// async headers() {
+	// 	return [
+	// 		{
+	// 			source: "/",
+	// 			headers: [
+	// 				{
+	// 					key:"Link",
+	// 					value:"https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&amp;family=Press+Start+2P&amp;display=swap"
+	// 				},
+	// 				{
+	// 					key:"Link",
+	// 					value:"https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+	// 				},
+	// 			]
+	// 		}
+	// 	]
+	// }
 };

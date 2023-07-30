@@ -3,6 +3,10 @@
 	min-height: calc(100vh - 56px - 114px);
 }
 
+.mobStationStyle {
+	background-color: #1e1b21;
+}
+
 .dropdownBoxArrow {
 	border: solid #fff !important;
 	border-width: 0 1.75px 1.75px 0 !important;
@@ -39,7 +43,8 @@
 	opacity: 0.9;
 }
 
-.coverCard {
+.coverCard,
+.coverContainer {
 	height: calc(100% - 56px) !important;
 }
 
@@ -74,7 +79,7 @@
 	padding-right: var(--mask-width);
 
 	/* Keep some space between content and scrollbar */
-	padding-bottom: 20px;
+	/* padding-bottom: 20px; */
 
 	/* The CSS mask */
 
@@ -172,6 +177,7 @@
 }
 
 .guildPill {
+	position: absolute;
 	display: none;
 	width: 6px;
 	height: 48px;
@@ -181,20 +187,34 @@
 	margin: 3px 0;
 }
 
-.activeGuild > .guildPill {
-	background-color: #d15e8f;
-	transform: scaleY(1);
+.activeGuild .guildPill {
+	background-color: #d185cd!important;
+	transform: scaleY(1)!important;
 }
 
 .mutualWrapper {
 	overflow: hidden;
 	flex: 1 1;
 	padding: 5px;
-	border-radius: 12px;
 	transition: 0.2s ease;
 }
 
+.icon {
+	will-change: border-radius;
+	border-radius: 50%;
+	transition: border-radius 0.3s ease;
+}
+
+.iconContainer:hover .icon {
+	border-radius: 12px;
+}
+
+.activeGuild .mutualWrapper .icon {
+	border-radius: 12px;
+}
+
 .iconWrapper {
+	display: flex;
 	overflow: hidden;
 	height: 54px;
 	flex-shrink: 0;
@@ -369,12 +389,13 @@
 }
 
 .stationCurrentTrack {
-	background: #2c2a31;
+	background: #2c2a31!important;
 	border-radius: 4px 0 0 4px;
 }
 
 .stationQueueTrack {
 	border-bottom: 1px solid #2c2a31;
+	background: #1e1b21;
 }
 
 .stationQueueTrackInfo {
@@ -412,7 +433,7 @@ a.stationTrackTitle {
 }
 
 a.stationTrackTitle:hover {
-	color: #d185cd;
+	color: #d185cd !important;
 }
 
 .stationTrackRemoveBtn {
@@ -433,6 +454,7 @@ a.stationTrackTitle:hover {
 
 .stationControllerSlider .sliderInputRange {
 	height: 100%;
+	max-height: 4px;
 }
 
 .inputRangeMin,
@@ -447,7 +469,7 @@ a.stationTrackTitle:hover {
 }
 
 .stationControllerSlider .activeEffect {
-	background: #d15e8f;
+	background: #d185cd;
 	transition: 0.1s linear;
 }
 
@@ -582,6 +604,16 @@ a.stationTrackTitle:hover {
 	}
 }
 
+@media screen and (max-width: 768px) {
+	.stationContainer {
+		color: white;
+	}
+
+	.stationControllerSlider .inputSliderContainer {
+		background-color: #ada5b6;
+	}
+}
+
 @media screen and (max-width: 425px) and (min-height: 800px) {
 	.stationMutatorContainer {
 		margin-bottom: 5vh;
@@ -620,10 +652,12 @@ a.stationTrackTitle:hover {
 
 	.guildPill {
 		display: block;
+		transform-origin: left;
+		right: 90px;
 	}
 
 	.activeGuild .iconWrapper {
-		border-color: #d15e8f;
+		border-color: #d185cd;
 	}
 
 	.mutualWrapper {
@@ -637,8 +671,13 @@ a.stationTrackTitle:hover {
 		display: none;
 	}
 
-	.mutualWrapper:hover .toolTip {
+	.iconContainer:hover .toolTip {
 		display: inline-block;
+	}
+	
+	.iconContainer:hover .guildPill {
+		transform: scaleY(0.5);
+		background-color: white;
 	}
 
 	.stationUnattended {
@@ -812,11 +851,7 @@ a.stationTrackTitle:hover {
 }
 
 .mobStationPlusOptionsContainer.activeContainer {
-	will-change: transform, opacity;
 	position: relative;
-	flex: 1;
-	height: 100%;
-	width: 100%;
 	background-color: var(--mob-palette-vibrant);
 	animation: pullUp 0.5s ease-in-out;
 }
@@ -833,6 +868,10 @@ a.stationTrackTitle:hover {
 	border-radius: 2px;
 }
 
+.mobStationPlusOptionsContainer.activeStationOptions {
+	bottom: 0 !important;
+}
+
 .mobStationPlusOptions.activeContainer::after {
 	will-change: transform;
 	position: absolute;
@@ -845,16 +884,18 @@ a.stationTrackTitle:hover {
 	background-color: white;
 }
 
-.mobStationPlusContainer {
+.mobStationPlusContainer .mobStationOption {
 	background-color: var(--mob-palette-vibrant);
+}
+
+.mobStationContainer.activeContainer {
+	height: calc(100% - 56px) !important;
 }
 
 .unattendedContainer.activeContainer,
 .coverContainer.activeContainer,
 .optionsCoverContainer.activeContainer,
-.mobStationContainer.activeContainer,
-.mobStationPlusContainer.activeContainer,
-.mobStationPlusOptionsContainer.activeContainer {
+.mobStationContainer.activeContainer {
 	height: 100vh;
 	will-change: transform;
 	animation: pullUp 0.5s ease-in-out;
@@ -878,7 +919,6 @@ a.stationTrackTitle:hover {
 
 .mobStationContainer.deactiveContainer,
 .unattendedContainer.deactiveContainer,
-.mobStationPlusContainer.deactiveContainer,
 .coverContainer.deactiveContainer,
 .mobStationPlusOptionsContainer.deactiveContainer,
 .mobStationOptionsContainer.deactiveContainer,
@@ -903,7 +943,7 @@ a.stationTrackTitle:hover {
 
 @keyframes pullUp {
 	0% {
-		transform: translateY(100%);
+		transform: translateY(100vh);
 	}
 
 	100% {
@@ -927,7 +967,7 @@ a.stationTrackTitle:hover {
 	}
 
 	100% {
-		transform: translateY(100%);
+		transform: translateY(100vh);
 	}
 }
 
@@ -986,7 +1026,7 @@ a.stationTrackTitle:hover {
 
 @keyframes pauseButtonFlash {
 	0% {
-		background-color: var(--mob-palette-vibrant);
+		background-color: transparent;
 	}
 
 	50% {
@@ -994,7 +1034,7 @@ a.stationTrackTitle:hover {
 	}
 
 	100% {
-		background-color: var(--mob-palette-vibrant);
+		background-color: transparent;
 	}
 }
 

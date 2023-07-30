@@ -1,6 +1,13 @@
 import styles from "../../../styles/javstation.module.css";
 
-export const effectType = {
+type EffectFunction = (event: any, div: HTMLDivElement, circle: HTMLSpanElement, width: number, height: number, diameter: number, radius: number, left: number, top: number) => HTMLSpanElement;
+
+interface EffectType {
+	radial: EffectFunction;
+	center: EffectFunction;
+}
+
+export const effectType: EffectType = {
 	radial: ({ clientX, clientY }, div, circle, width, height, diameter, radius, left, top) => {
 		circle.style.width = circle.style.height = `${diameter}px`;
 		circle.style.left = `${clientX - (left + radius)}px`;
@@ -22,7 +29,7 @@ export const effectType = {
 	},
 };
 
-export const materializeEffect = (event, effect) => {
+export const materializeEffect = (event: any, effect: EffectFunction) => {
 	const div = event.currentTarget;
 	if (!div) return;
 	if (div.children.length > 3) div.removeChild(div.lastElementChild);
@@ -34,14 +41,14 @@ export const materializeEffect = (event, effect) => {
 
 	effect(event, div, circle, width, height, diameter, radius, left, top);
 
-	div.append(circle);
+	div.prepend(circle);
 
 	setTimeout(() => {
 		circle.remove();
 	}, 500);
 };
 
-export const dynamicClick = (event, callback) => {
+export const dynamicClick = (event: any, callback: Function) => {
 	const div = event.currentTarget;
 
 	const { clientX: x, clientY: y } = event;
@@ -59,7 +66,7 @@ export const developDynamicAnimation = (event) => {
 	if (!div || initialized) return;
 
 	const { left, top, width, height } = div.getBoundingClientRect();
-	console.log(top, height)
+	console.log(top, height);
 	const centerY = top + height >= 800 ? top - height / 2 : top - height;
 
 	const root = document.documentElement;

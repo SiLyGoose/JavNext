@@ -1,6 +1,7 @@
 // for global css configuration
 
 import "../styles/global.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import Head from "next/head";
 import { AppProps } from "next/app";
@@ -9,10 +10,22 @@ import React, { useState, useEffect } from "react";
 // import next's router for callbacks
 // import App from "next/app";
 import { useRouter } from "next/router";
+import { Poppins } from "next/font/google";
 
 // loading screen component
 import Loading from "../components/global/page/loading";
 import { TokenProvider } from "../components/global/token/TokenContext";
+import { QueryClient, QueryClientProvider } from "react-query";
+
+const queryClient = new QueryClient();
+
+const jPoppins = Poppins({
+	weight: ["300", "400", "500", "600", "700", "900"],
+	preload: true,
+	fallback: ["sans-serif"],
+	subsets: ["latin"],
+	display: "swap",
+});
 
 // import { library } from '@fortawesome/fontawesome-svg-core'
 // import { faRightFromBracket, faUserGroup } from '@fortawesome/free-solid-svg-icons'
@@ -53,9 +66,17 @@ const App = ({ Component, pageProps }) => {
 		<TokenProvider>
 			<Head>
 				<title>JavKing</title>
+				<meta name="theme-color" content={"#2c2a31"} />
 			</Head>
-			<Component {...pageProps} />
-			<Loading isLoading={isLoading} />
+			<QueryClientProvider client={queryClient}>
+				<style jsx global>{`
+					html {
+						--font-jPoppins: ${jPoppins.style.fontFamily};
+					}
+				`}</style>
+				<Component {...pageProps} />
+				<Loading isLoading={isLoading} />
+			</QueryClientProvider>
 		</TokenProvider>
 	);
 };

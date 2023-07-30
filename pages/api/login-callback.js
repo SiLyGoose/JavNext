@@ -17,5 +17,5 @@ export default async function handleLoginCallback(req, res) {
 			console.error(error);
 			res.status(500).json({ error: "Internal Server Error. Teehee" });
 		})
-		.finally(res.redirect(state));
+		.then(res.redirect(state));
 }

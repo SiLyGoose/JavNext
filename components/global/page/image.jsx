@@ -8,7 +8,7 @@ import React from "react";
 
 // const Image: React.FC<ImageProps> = ({ alt, src, quality }) => {
 
-const Image = ({ alt, src, quality, className }) => {
+const jImage = ({ alt, src, quality, className }) => {
 	return (
 		<img
 			alt={alt}
@@ -35,4 +35,4 @@ const Image = ({ alt, src, quality, className }) => {
 	);
 };
 
-export default Image;
+export default jImage;

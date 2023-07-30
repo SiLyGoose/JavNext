@@ -6,17 +6,18 @@ import Canvas from "../../components/global/page/canvas";
 import Header from "../../components/global/page/header";
 import { API_URL, WS_URL } from "../../components/global/util/url";
 import { Span } from "../../components/global/page/span";
-import Image from "../../components/global/page/image";
+import jImage from "../../components/global/page/image";
 import { guildIcon, userIcon } from "../../components/global/util/icon";
 import { SocketWrapper } from "../../components/socket/SocketWrapper";
 import { developDynamicAnimation, dynamicClick, dynamicPullUp, effectType, materializeEffect } from "../../components/global/page/animations";
 import { hexToRGBA } from "../../components/global/util/color";
 import { useToken } from "../../components/global/token/TokenContext";
-import { humanizeMs, throttle, updateStyle } from "../../components/global/util/qol";
+import { getMemberData, humanizeMs, throttle, updateStyle } from "../../components/global/util/qol";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Image from "next/image";
 import { faBackwardStep, faBars, faChartLine, faEllipsisVertical, faForwardStep, faHeart, faMagnifyingGlass, faPause, faPlay, faRepeat, faShuffle, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core";
@@ -26,16 +27,16 @@ import Marquee from "react-fast-marquee";
 // Palette to create dynamic background based on video thumbnail (MOBILE ONLY)
 import { usePalette as findPalette } from "react-palette";
 import { faYoutube } from "@fortawesome/free-brands-svg-icons";
+import { useQuery } from "react-query";
 
 function JavStation() {
 	// const url = "https://i.ytimg.com/vi/aVatpxBTfZs/maxresdefault.jpg";
 
 	const [socket, setSocket] = useState(null);
-	const [avatar, setAvatar] = useState(null);
-	const [globalName, setGlobalName] = useState(null);
+	// { id, avatar, globalName, mutualList }
+	const [user, setUser] = useState({});
 	// "dropdown" for guild list
 	const [guildListExpanded, setGuildListExpanded] = useState(true);
-	const [mutualList, setMutualList] = useState([]);
 	// user voice data
 	const [voiceData, setVoiceData] = useState({});
 	// tracks in queue
@@ -99,10 +100,6 @@ function JavStation() {
 	const [mobStationGuildOption, setMobStationGuildOption] = useState(false);
 
 	const optionRef = useRef(null);
-	const plusRef = useRef(null);
-
-	// mobile marquee title text
-	const marqueeRef = useRef(null);
 
 	const [palette, setPalette] = useState(null);
 	var { data } = findPalette(queueData[stationPosition]?.thumbnail);
@@ -221,6 +218,21 @@ function JavStation() {
 
 		setSocket(socketWrapper);
 
+		// React Query
+		// const { data, status } = useQuery(["memberData", token], getMemberData, { enabled: !!token });
+		// if (status === "error") router.replace("/javstudio");
+		// if (status === "success") {
+		// 	const {
+		// 		id,
+		// 		d: {
+		// 			avatar,
+		// 			username,
+		// 			guild: { mutualList },
+		// 		},
+		// 	} = data;
+		// 	setUser({ id, avatar: `https://cdn.discordapp.com/avatars/${id}/${avatar}.png`, globalName: username, mutualList });
+		// }
+
 		fetch(API_URL("guild-member-data", token))
 			.then((response) => response.json())
 			.then((data) => {
@@ -232,9 +244,7 @@ function JavStation() {
 						guild: { mutualList },
 					},
 				} = data;
-				setMutualList(mutualList);
-				setGlobalName(username);
-				setAvatar(`https://cdn.discordapp.com/avatars/${id}/${avatar}.png`);
+				setUser({ id, avatar: `https://cdn.discordapp.com/avatars/${id}/${avatar}.png`, globalName: username, mutualList });
 			})
 			.catch((error) => {
 				console.error(error);
@@ -467,11 +477,14 @@ function JavStation() {
 	};
 
 	const createMobGuildList = () => {
+		const { globalName, avatar, mutualList } = user;
+		if (!globalName || !avatar) return;
+
 		return (
 			<div className={`container p-3 ${clsx({ [utilStyles.zN999]: stationCard || mobStationOptions })}`}>
 				<div className="d-flex w-100 my-4 col align-items-center justify-content-center">
 					<div className={styles.mobStationUserIcon}>
-						<img className="rounded-circle img-fluid" src={avatar} />
+						<Image alt={`User ${globalName}`} className="rounded-circle img-fluid" src={avatar} width={40} height={40} />
 					</div>
 					<div className="d-flex flex-column w-100 ml-3">
 						<div className="row w-100 mx-auto">
@@ -496,7 +509,7 @@ function JavStation() {
 						>
 							<div className="col-3">
 								<div className={styles.mobStationGuildIcon}>
-									<img className="rounded img-fluid" src={guildIcon(item.id, item.icon)} />
+									<Image alt={item.name} className="rounded img-fluid" src={guildIcon(item.id, item.icon)} width={48} height={48} />
 								</div>
 							</div>
 							{/* my-2 */}
@@ -528,11 +541,18 @@ function JavStation() {
 	};
 
 	const createGuildList = () => {
+		const { mutualList } = user;
+		if (!mutualList?.length) return;
+
 		return (
 			<div className={`d-flex ${styles.guildNavContainer}`}>
 				<ul className={`d-flex pt-3 flex-column flex-shrink-0 ${styles.guildNavWrapper}`}>
 					<li className={clsx({ ["d-flex flex-column"]: guildListExpanded })}>
-						<button className={`w-100 text-center py-2 rounded ${styles.guildNavBtnWrapper} ${clsx({ [styles.activeEffect]: guildListExpanded })}`} onClick={handleGuildExpanded}>
+						<button
+							aria-label={"Display guilds"}
+							className={`w-100 text-center py-2 rounded ${styles.guildNavBtnWrapper} ${clsx({ [styles.activeEffect]: guildListExpanded })}`}
+							onClick={handleGuildExpanded}
+						>
 							<div className="d-flex align-items-center">
 								<div className={styles.btnPill} />
 								<div className={`d-flex justify-content-between ${styles.btnCategoryWrapper}`}>
@@ -545,19 +565,17 @@ function JavStation() {
 						{guildListExpanded && (
 							<div className={styles.guildList}>
 								{mutualList.map((item, index) => (
-									<div key={item.id} className={styles.mutualContainer}>
-										<Link className={`d-flex position-relative ${clsx({ [styles.activeGuild]: item.id === stationId })}`} href={`/javstation/${item.id}`} target="_self">
-											<div className={styles.guildPill} />
-											<div className={`d-flex text-center align-items-center ${styles.mutualWrapper}`}>
+									<div key={item.id} className={`d-flex position-relative ${clsx({ [styles.activeGuild]: item.id === stationId })} ${styles.mutualContainer}`}>
+										<div className={`d-flex text-center align-items-center justify-content-center ${styles.mutualWrapper}`}>
+											<Link className={styles.iconContainer} href={`/javstation/${item.id}`} target="_self">
+										<div className={styles.guildPill} />
 												<div className={styles.iconWrapper}>
-													<Span Px={48}>
-														<Image alt={item.name} src={guildIcon(item.id, item.icon)} quality={100} />
-													</Span>
+													<span className={`align-self-center ${styles.baseToolTip} ${styles.toolTip} ${styles.toolTipLg} ${utilStyles.fontType12}`}>{item.name}</span>
+													<Image alt={item.name} src={guildIcon(item.id, item.icon)} quality={100} width={48} height={48} className={styles.icon} />
 												</div>
-												<div className={styles.mutualMobWrapper}>{item.name}</div>
-												<span className={`${styles.baseToolTip} ${styles.toolTip} ${styles.toolTipLg} ${utilStyles.fontType12}`}>{item.name}</span>
-											</div>
-										</Link>
+											</Link>
+											<div className={styles.mutualMobWrapper}>{item.name}</div>
+										</div>
 									</div>
 								))}
 							</div>
@@ -573,7 +591,7 @@ function JavStation() {
 			<div className={`d-flex overflow-auto justify-content-around h-100 mb-5 ${styles.stationQueueWrapper}`}>
 				<div className="d-flex flex-column align-items-center m-auto">
 					<Span Px={200}>
-						<Image alt="emptyQueue" src="/images/emptyQueue.png" quality={100} className="w-100 h-100 d-block" />
+						<Image alt="emptyQueue" src="/images/emptyQueue.png" quality={100} className="w-100 h-100 d-block" width={200} height={200} />
 					</Span>
 					{/* <span no songs in queue etc  */}
 				</div>
@@ -587,6 +605,7 @@ function JavStation() {
 
 	const createMobStationOptions = () => {
 		const options = mobStationGuildOption ? stationGuildOptions : stationOptions;
+		const { mutualList } = user;
 		const mutual = mobStationGuildOption ? mutualList[mobStationIndex] : mutualList.find((m) => m.id === stationId);
 		if (!mutual) return;
 
@@ -609,7 +628,7 @@ function JavStation() {
 						<div className="col">
 							<div className="d-flex">
 								<div className={`d-flex align-items-center justify-content-center ${styles.mobStationGuildIcon}`}>
-									<img src={guildIcon(mutual.id, mutual.icon)} className="rounded img-fluid" />
+									<img alt={mutual.name} src={guildIcon(mutual.id, mutual.icon)} className="rounded img-fluid" />
 								</div>
 								<div className="align-self-center my-auto px-3">
 									<span className={`${utilStyles.fontType3}`}>{mutual.name}</span>
@@ -650,15 +669,15 @@ function JavStation() {
 					})}`}
 				/>
 				<div
-					className={`rounded-top rounded-lg pt-3 ${styles.mobStationPlusOptionsContainer} ${clsx({
+					className={`container rounded-top px-0 py-2 mt-auto mb-0 ${styles.mobStationPlusOptionsContainer} ${clsx({
 						[styles.activeContainer]: stationCard,
 						[styles.deactiveContainer]: stationCardDeactive,
 						[styles.activeOptionsContainer]: stationPlus,
 						[styles.deactiveOptionsContainer]: stationPlusDeactive,
 						[utilStyles.z9]: stationCard,
-						["py-3"]: winHeight >= 800,
+						[utilStyles.zN1]: mobStationOptions,
+						[styles.activeStationOptions]: mobStationOptions,
 					})}`}
-					// ref={plusRef}
 					onClick={(event) => {
 						developDynamicAnimation(event);
 						if (stationPlus)
@@ -672,13 +691,13 @@ function JavStation() {
 							});
 					}}
 				>
-					<div className="d-flex justify-content-center justify-space-between mx-auto px-3">
+					<div className="d-flex justify-content-center justify-space-between mx-auto px-3 text-center text-uppercase">
 						{stationPlusOptions.map((item, index) => {
 							const optionActive = (index === 0 && mobStationQueueOption) || (index === 1 && mobStationLyricOption);
 							return (
 								<div
 									key={item.id}
-									className={`text-center text-uppercase mt-2 py-2 w-100 overflow-hidden ${utilStyles.colorAdjust4} ${styles.mobStationPlusOptions} ${clsx({
+									className={`d-flex mt-2 py-2 w-100 overflow-hidden ${utilStyles.colorAdjust4} ${styles.mobStationPlusOptions} ${clsx({
 										[styles.activeContainer]: optionActive,
 										[utilStyles.colorAdjust3]: optionActive,
 									})}`}
@@ -690,28 +709,27 @@ function JavStation() {
 										setMobStationLyricOptions(index === 1);
 									}}
 								>
-									<span className={`${utilStyles.fontType2} ${clsx({ [styles.WIP]: index === 1 })}`}>{item.label}</span>
+									<span className={`text-center align-self-center m-auto ${utilStyles.fontType2} ${clsx({ [styles.WIP]: index === 1 })}`}>{item.label}</span>
 								</div>
 							);
 						})}
 					</div>
 					{stationPlus && (
-						<div
-							className={`container d-flex flex-column py-0 px-0 align-items-center ${utilStyles.z999} ${styles.mobStationPlusContainer} ${clsx({
-								[styles.activeContainer]: mobStationOptions,
-								[styles.deactiveContainer]: mobStationOptionsDeactive,
-							})}`}
-						>
+						<div className={`container d-flex flex-column py-0 px-0 align-items-center ${utilStyles.z999} ${styles.mobStationPlusContainer}`}>
 							{mobStationQueueOption &&
 								queueData.map((item, index) => {
-									if (stationPosition < index && !stationRepeat[1]) return;
+									if (index < stationPosition && !stationRepeat[1]) return;
 
 									return (
-										<div key={item.id} className={`row w-100 py-2 mx-auto ${styles.mobStationOption}`} onClick={(event) => materializeEffect(event, effectType.radial)}>
+										<div
+											key={item.id}
+											className={`row w-100 py-2 mx-auto ${styles.mobStationOption} ${clsx({ ["bg-transparent"]: index != stationPosition })}`}
+											onClick={(event) => materializeEffect(event, effectType.radial)}
+										>
 											<div className="col">
 												<div className="d-flex">
 													<div className={`d-flex align-items-center justify-content-center ${utilStyles.mn36px} ${styles.mobStationOptionWrapper}`}>
-														<img src={item.thumbnail} className="rounded img-fluid" />
+														<img alt={"thumbnail"} src={item.thumbnail} className="rounded img-fluid" />
 													</div>
 													<div className="align-self-center my-auto px-3">
 														<div className="d-flex flex-column">
@@ -779,7 +797,9 @@ function JavStation() {
 			<>
 				{/* ${styles.stationQueueInfo} */}
 				<div className={`d-flex align-items-center justify-content-between`}>
-					<p className={`text-uppercase ${utilStyles.fontType12} ${utilStyles.fontAdjust3}`}>{stationRepeat[1] ? queueData.length : queueData.length - stationPosition} songs in queue</p>
+					<p className={`text-uppercase ${utilStyles.fontType12} ${utilStyles.fontAdjust3} ${utilStyles.colorAdjust2}`}>
+						{stationRepeat[1] ? queueData.length : queueData.length - stationPosition} songs in queue
+					</p>
 					{/* <div> clear player </div> */}
 				</div>
 				<div className={`h-100 mt-1 pb-0 ${styles.stationQueue}`}>
@@ -802,7 +822,7 @@ function JavStation() {
 										<div className={`ml-4 ${styles.stationTrackInfoWrapper}`}>
 											<div className="d-flex align-items-center">
 												<div className={styles.stationTrackTitleWrapper}>
-													<a className={styles.stationTrackTitle} href={url} target="_blank">
+													<a className={`${styles.stationTrackTitle} ${utilStyles.colorAdjust2}`} href={url} target="_blank">
 														{title}
 													</a>
 												</div>
@@ -811,14 +831,13 @@ function JavStation() {
 											</div>
 											<div className="d-flex align-items-center mt-3 justify-content-between">
 												<div className="d-flex align-items-center">
-													<Span Px={18}>
-														<Image alt={username} src={avatar} quality={100} className="rounded-circle" />
-													</Span>
+													<Image alt={username} src={avatar} quality={100} className="rounded-circle" width={18} height={18} />
 													<span className={`ml-2 ${utilStyles.colorAdjust1} ${styles.stationTrackInfoRequester}`}>{username}</span>
 												</div>
 												{(index > stationPosition || (index < stationPosition && stationRepeat[1])) && (
 													<div className="flex-shrink-0">
 														<button
+															aria-label={"Remove track"}
 															className="position-relative bg-transparent"
 															onClick={() => {
 																handleTrackRemoved(index);
@@ -889,6 +908,7 @@ function JavStation() {
 	};
 
 	const createMobStation = () => {
+		const { mutualList } = user;
 		return (
 			<>
 				<div
@@ -900,14 +920,15 @@ function JavStation() {
 					})}`}
 				></div>
 				<div
-					className={`container px-4 h-100 my-auto d-flex flex-column ${styles.mobStationContainer} ${clsx({
+					className={`container px-4 my-auto d-flex flex-column justify-content-start ${utilStyles.posAbs} ${styles.mobStationContainer} ${clsx({
 						[styles.activeContainer]: stationCard,
 						[styles.deactiveContainer]: stationCardDeactive,
-						[utilStyles.z99]: stationCard && !mobStationOptions,
+						[utilStyles.z9]: stationCard && !mobStationOptions,
 						[utilStyles.zN99]: mobStationOptions || stationPlus,
 						[styles.stationOptionPlus]: stationPlus,
 						// justify-content-between
-						["py-3 justify-content-center"]: winHeight >= 800,
+						["py-3"]: winHeight >= 700,
+						["justify-content-center"]: winHeight >= 800,
 						["py-2"]: true,
 					})}`}
 				>
@@ -921,7 +942,12 @@ function JavStation() {
 										setStationPlusDeactive(false);
 									}}
 								>
-									<button className="d-flex bg-transparent align-items-center justify-content-center mt-1 mb-auto mx-auto" type="button" onClick={handleCardDeactive}>
+									<button
+										aria-label={"Return to JavStation guild list"}
+										className="d-flex bg-transparent align-items-center justify-content-center mt-1 mb-auto mx-auto"
+										type="button"
+										onClick={handleCardDeactive}
+									>
 										<span className={`mx-auto ${headerStyles.dropdownBoxArrow} ${styles.dropdownBoxArrow}`} />
 									</button>
 								</div>
@@ -952,19 +978,19 @@ function JavStation() {
 							<div className={`row pb-3 align-self-center mx-auto w-100 ${clsx({ ["pt-3"]: winHeight >= 800 })}`}>
 								<div className="col-md-6 offset-md-3">
 									<div className={styles.thumbnailContainer}>
-										<img src={queueData[stationPosition].thumbnail} className="rounded" />
+										<img alt={"thumbnail"} src={queueData[stationPosition].thumbnail} className="rounded" />
 									</div>
 								</div>
 							</div>
 							<div className="row pb-3">
 								<div className={`d-flex flex-column w-75 align-items-center mx-auto col-md-6 offset-md-3 ${styles.titleContainer}`}>
-									<Marquee className={`pb-3 ${styles.maskedOverflow}`} delay={3} speed={25} onCycleComplete={handleMarqueeFinish} ref={marqueeRef}>
+									<Marquee className={`${styles.maskedOverflow} ${clsx({ ["pb-3"]: winHeight >= 700 })}`} delay={3} speed={25} onCycleComplete={handleMarqueeFinish}>
 										<h4 className={`mr-5 mb-0 ${styles.slidingText}`}>{queueData[stationPosition].title}</h4>
 									</Marquee>
 									<span className={`text-center ${utilStyles.colorAdjust1}`}>{queueData[stationPosition].channel}</span>
 								</div>
 							</div>
-							<div className="row pb-3 align-items-center flex-column">
+							<div className={`row align-items-center flex-column ${clsx({ ["pb-3"]: winHeight >= 700 })}`}>
 								{createSlider()}
 								<div className={`d-flex justify-space-between pt-2 ${styles.stationControllerSlider}`}>
 									<span ref={trackDataTime} className={`${utilStyles.colorAdjust1}`}>
@@ -1048,6 +1074,7 @@ function JavStation() {
 								<li key={item.id} className={`d-inline-block position-relative ${clsx({ [`ml-auto ${styles.activityControlOption}`]: index === 2 })} ${styles.stationControlOption}`}>
 									<a onClick={handleStationOption} href={`${router.asPath}#${item.label}`}>
 										<button
+											aria-label={item.label}
 											className={`d-flex align-items-center ${styles.stationControlBtn} ${clsx({ [styles.activeControl]: stationControl[index] })} ${clsx({
 												[styles.stationControlSearch]: index === 1,
 											})}`}
@@ -1071,7 +1098,8 @@ function JavStation() {
 	};
 
 	const createMobUnattendedStation = () => {
-		if (!mutualList.length) return;
+		const { mutualList } = user;
+		if (!mutualList?.length) return;
 
 		return (
 			<div
@@ -1087,7 +1115,12 @@ function JavStation() {
 					<div className="col-md-6 offset-md-3">
 						<span className="d-flex h-100 align-items-center justify-content-start">
 							<div className={`d-flex h-100 ${utilStyles.mnw24px} ${styles.mobCardMutator}`} onClick={(event) => materializeEffect(event.currentTarget, effectType.center)}>
-								<button className="d-flex bg-transparent align-items-center justify-content-center mt-1 mb-auto mx-auto" type="button" onClick={handleCardDeactive}>
+								<button
+									aria-label="Return to JavStation guild list"
+									className="d-flex bg-transparent align-items-center justify-content-center mt-1 mb-auto mx-auto"
+									type="button"
+									onClick={handleCardDeactive}
+								>
 									<span className={`mx-auto ${headerStyles.dropdownBoxArrow} ${styles.dropdownBoxArrow}`} />
 								</button>
 							</div>
@@ -1114,10 +1147,8 @@ function JavStation() {
 					</div>
 				</div>
 				<div className={`text-center ${styles.stationUnattended}`}>
-					<Span Px={200}>
-						<Image alt="station unattended" src="/images/JavKing_VC_DISCONNECTED.png" quality={100} />
-					</Span>
-					<h2 className={`${utilStyles.fontType15}`}>
+					<Image alt="station unattended" src="/images/JavKing_VC_DISCONNECTED.png" quality={100} width={320} height={200} />
+					<h2 className={`${utilStyles.fontType15} ${utilStyles.colorAdjust2}`}>
 						Please join a <span style={{ color: "#7289da" }}>Discord</span> voice channel to manage JavStation
 					</h2>
 				</div>
@@ -1128,10 +1159,8 @@ function JavStation() {
 	const createUnattendedStation = () => {
 		return (
 			<div className={`text-center ${styles.stationUnattended}`}>
-				<Span Px={200}>
-					<Image alt="station unattended" src="/images/JavKing_VC_DISCONNECTED.png" quality={100} />
-				</Span>
-				<h2 className={`${utilStyles.fontType15}`}>
+				<Image alt="station unattended" src="/images/JavKing_VC_DISCONNECTED.png" quality={100} width={320} height={200} />
+				<h2 className={`${utilStyles.fontType15} ${utilStyles.colorAdjust2}`}>
 					Please join a <span style={{ color: "#7289da" }}>Discord</span> voice channel to manage JavStation
 				</h2>
 			</div>
@@ -1139,7 +1168,7 @@ function JavStation() {
 	};
 
 	const createEmptyTrackData = () => {
-		return <div className={`py-2 ${utilStyles.fontType2}`}>No Music Playing</div>;
+		return <div className={`py-2 ${utilStyles.fontType2} ${utilStyles.colorAdjust2}`}>No Music Playing</div>;
 	};
 
 	const createTrackData = () => {
@@ -1151,12 +1180,10 @@ function JavStation() {
 		return (
 			<>
 				<div className="position-relative d-inline-block">
-					<span className={`${utilStyles.fontType12} ${styles.stationQueueTrackInfo}`}>{title}</span>
+					<span className={`${utilStyles.fontType12} ${utilStyles.colorAdjust2} ${styles.stationQueueTrackInfo}`}>{title}</span>
 				</div>
 				<div className={`d-flex align-items-center mt-1 ${utilStyles.colorAdjust1}`}>
-					<Span Px={18}>
-						<Image alt={username} src={avatar} quality={100} className="rounded-circle" />
-					</Span>
+					<Image alt={username} src={avatar} quality={100} className="rounded-circle" width={18} height={18} />
 					<div className={`${utilStyles.fontType11} ${styles.stationQueueTrackInfoRequester}`}>{`${username}`}</div>
 					<div className={styles.stationTrackInfoDivider} style={{ backgroundColor: "#ada5b6" }} />
 					<div className={utilStyles.fontType11} ref={trackDataTime}>
@@ -1201,7 +1228,7 @@ function JavStation() {
 	};
 
 	return (
-		<div className="d-flex h-100 flex-column">
+		<div className={`d-flex h-100 flex-column ${clsx({ [styles.mobStationStyle]: winWidth < 768 })}`}>
 			{winWidth >= 768 && <Canvas />}
 			<Header JavStation={true} />
 
@@ -1209,7 +1236,7 @@ function JavStation() {
 				<main className={`d-flex flex-column overflow-auto h-100 ${styles.stationContainer}`}>
 					{createMobGuildList()}
 					{voiceData.userChannel?.voiceId && stationCard ? createMobStation() : stationCard ? createMobUnattendedStation() : ""}
-					{stationCard && queueData.length > 0 ? createMobStationPlusOptions() : ""}
+					{stationCard && queueData.length > 0 && createMobStationPlusOptions()}
 					{mobStationOptions && createMobStationOptions()}
 					{/* {stationPlus && createMobStationPlus()} */}
 				</main>
@@ -1223,7 +1250,7 @@ function JavStation() {
 					</main>
 
 					<footer className={`mastfoot d-flex flex-column mb-0 mt-auto w-100 ${styles.stationController}`}>
-						{queueData.length ? createSlider() : undefined}
+						{queueData.length > 0 && createSlider()}
 						<div className={`d-flex flex-wrap h-100 align-items-center ${styles.stationControllerWrapper}`}>
 							<div className={styles.trackDataSection}>{stationPosition < queueData.length ? createTrackData() : createEmptyTrackData()}</div>
 							<div
@@ -1233,7 +1260,7 @@ function JavStation() {
 							>
 								{trackMutators.map((item, index) => (
 									<div key={item.id}>
-										<button className={`btn-group ${styles.trackMutator}`} onClick={item.handler}>
+										<button aria-label={item.label} className={`btn-group ${styles.trackMutator}`} onClick={item.handler}>
 											<FontAwesomeIcon
 												icon={icon(index === 1 && stationPaused ? faPlay : item.icon)}
 												width={index === 1 ? 40 : 24}
@@ -1252,7 +1279,7 @@ function JavStation() {
 							>
 								{queueMutators.map((item, index) => (
 									<div key={item.id} className={`flex-shrink-0 ${styles.queueMutatorWrapper}`}>
-										<button className={`btn-group ${styles.queueMutator}`} onClick={item.handler}>
+										<button aria-label={item.label} className={`btn-group ${styles.queueMutator}`} onClick={item.handler}>
 											<FontAwesomeIcon
 												icon={icon(item.icon)}
 												width={24}

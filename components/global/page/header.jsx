@@ -1,5 +1,5 @@
 import { Span } from "./span";
-import Image from "./image";
+import jImage from "./image";
 import { guildIcon, userIcon } from "../util/icon";
 import { LoginURL, API_URL } from "../util/url";
 
@@ -14,6 +14,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightFromBracket, faUserGroup } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/router";
 import { useToken } from "../token/TokenContext";
+import Image from "next/image";
+import { useQuery } from "react-query";
+import { getMemberData } from "../util/qol";
 
 // cache to allow quicker load times and less computing/fetching
 // import useSWR from "swr";
@@ -28,7 +31,7 @@ function Header({ JavStation = false }) {
 	const dropdownRefs = [useRef(null), useRef(null)];
 	const [isExpanded, setIsExpanded] = useState([false, false]);
 
-	const [user, setUser] = useState(null);
+	const [user, setUser] = useState({});
 	const [winWidth, setWinWidth] = useState(0);
 
 	// index 0, 1 for commands, dashboard
@@ -114,8 +117,8 @@ function Header({ JavStation = false }) {
 						setIsExpanded((prevState) => [!prevState[0], prevState[1]]);
 					}}
 				>
-					<span className={`${styles.boxSelectedName} ${utilStyles.fontType7} ${clsx({[styles.activeEffect]: isExpanded[0]})}`}>Menu</span>
-					<span className={`${styles.dropdownBoxArrow} ${clsx({[styles.activeEffect]: isExpanded[0]})}`} />
+					<span className={`${styles.boxSelectedName} ${utilStyles.fontType7} ${clsx({ [styles.activeEffect]: isExpanded[0] })}`}>Menu</span>
+					<span className={`${styles.dropdownBoxArrow} ${clsx({ [styles.activeEffect]: isExpanded[0] })}`} />
 					{isExpanded[0] && (
 						<ul className={`${styles.menuDropdownWrapper} ${styles.menuItem}`}>
 							{navItems.map((item) => (
@@ -162,7 +165,7 @@ function Header({ JavStation = false }) {
 		fetch(API_URL("remove-guild-member", token), { method: "DELETE" })
 			.then((response) => {
 				if (!response.ok) throw new Error("Unable to log user out", { cause: response });
-				setUser(null);
+				setUser({});
 				// setIsLoggedIn(false);
 			})
 			.catch(console.error);
@@ -170,17 +173,17 @@ function Header({ JavStation = false }) {
 
 	// user logged in
 	const createUser = () => {
+		if (!user || Object.keys(user).length === 0) return;
+
 		return (
 			<button
 				type="button"
-				className={`${styles.boxSelected} ${styles.headerUser} ${clsx({[styles.buttonActiveEffect]: isExpanded[1]})}`}
+				className={`${styles.boxSelected} ${styles.headerUser} ${clsx({ [styles.buttonActiveEffect]: isExpanded[1] })}`}
 				onClick={() => {
 					setIsExpanded((prevState) => [prevState[0], !prevState[1]]);
 				}}
 			>
-				<Span>
-					<Image alt={user.d.username} src={userIcon(user.id, user.d.avatar)} quality="100" className={styles.boxSelectedImage} />
-				</Span>
+				<Image alt={user.d.username} src={userIcon(user.id, user.d.avatar)} quality={100} className={styles.boxSelectedImage} width={32} height={32} />
 				<span className={`${styles.headerUserName} ${utilStyles.fontType7}`}>{user.d.username}</span>
 				<span className={`${styles.dropdownBoxArrow} ${isExpanded[1] ? styles.activeEffect : ""}`} />
 				{isExpanded[1] && (
@@ -206,7 +209,12 @@ function Header({ JavStation = false }) {
 	};
 
 	return (
-		<header className={`${clsx({[styles.headerMobile]: router.asPath !== "/"})} ${styles.header} masthead mb-auto`}>
+		<header
+			className={`${clsx({ [styles.headerMobile]: router.asPath !== "/" })} ${styles.header} masthead ${clsx({
+				["mb-0"]: JavStation,
+				["mb-auto"]: !JavStation,
+			})}`}
+		>
 			<div className={styles.logoWrapper}>
 				<Link className={styles.logoLink} href="/">
 					<span

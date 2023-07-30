@@ -34,7 +34,7 @@ body {
 	line-height: 1;
 	color: #fff;
 	display: block;
-	background: #1e1b21;
+	background-color: #1e1b21!important;
 }
 
 body > div {

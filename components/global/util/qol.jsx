@@ -1,5 +1,6 @@
 import moment from "moment";
 import fetch from "node-fetch";
+import { API_URL } from "./url";
 
 // quality of life functions
 
@@ -54,6 +55,12 @@ export async function getIdentifier() {
 	const data = await response.json();
 	return data.token;
 }
+
+// React Query
+// export async function getMemberData(token) {
+// 	const response = await fetch(API_URL("guild-member-data", token));
+// 	return response.json();
+// }
 
 export function triggerAnimationClass(element, className, timeout = 500) {
 	element.classList.add(className);

@@ -1,0 +1,3 @@
+The largest integer is: 20
+The sum of integers is: 210
+The average of the integers is: 10.50
