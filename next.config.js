@@ -17,7 +17,8 @@ module.exports = {
 
 		SOCKET_URL: process.env.SOCKET_URL
 	},
-	images:{
+	images: {
+		unoptimized: true,
 		domains: ['cdn.discordapp.com']
 	},
 	// eliminate render-blocking resources
