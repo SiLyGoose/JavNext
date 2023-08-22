@@ -155,7 +155,7 @@ function Header({ JavStation = false }) {
 		return (
 			<div className={`${styles.buttonComponentHollow} ${styles.buttonComponentRound} ${styles.sizeDfButton}`}>
 				<a className={styles.buttonTag} href={LoginURL(router.asPath)}>
-					<span className={styles.buttonContent}>Login</span>
+					<span className={`${styles.buttonContent} ${utilStyles.defaultFamily}`}>Login</span>
 				</a>
 			</div>
 		);
@@ -232,7 +232,7 @@ function Header({ JavStation = false }) {
 							position: "relative",
 							maxWidth: "100%",
 						}}
-						className={`${utilStyles.fontType10} ${styles.logoTitle}`}
+						className={`${utilStyles.fontType10} ${styles.logoTitle} ${utilStyles.colorAdjust3}`}
 					>
 						{winWidth < 425 && winWidth >= 320 ? "JK" : "JavKing"}
 					</span>
@@ -245,7 +245,7 @@ function Header({ JavStation = false }) {
 				{!JavStation && <nav className={styles.headerNavContainer}>{winWidth >= 1024 ? createNavItems() : createNavMenu()}</nav>}
 				<div className={styles.headerUserWrapper}>
 					<div ref={dropdownRefs[1]} className={styles.headerUserDropdown}>
-						{user !== null ? createUser() : createHollowUser()}
+						{user && Object.keys(user).length !== 0 ? createUser() : createHollowUser()}
 					</div>
 				</div>
 			</div>

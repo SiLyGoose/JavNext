@@ -9,16 +9,32 @@ import { Span } from "../../components/global/page/span";
 import jImage from "../../components/global/page/image";
 import { guildIcon, userIcon } from "../../components/global/util/icon";
 import { SocketWrapper } from "../../components/socket/SocketWrapper";
-import { developDynamicAnimation, dynamicClick, dynamicPullUp, effectType, materializeEffect } from "../../components/global/page/animations";
+import { developDynamicAnimation, dynamicClick, dynamicPullUp, dynamicTabAnimation, effectType, handleDynamicSlider, materializeEffect } from "../../components/global/page/animations";
 import { hexToRGBA } from "../../components/global/util/color";
 import { useToken } from "../../components/global/token/TokenContext";
-import { getMemberData, humanizeMs, throttle, updateStyle } from "../../components/global/util/qol";
+import { getMemberData, humanizeMs, throttle, triggerAnimationClass, updateStyle } from "../../components/global/util/qol";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
-import { faBackwardStep, faBars, faChartLine, faEllipsisVertical, faForwardStep, faHeart, faMagnifyingGlass, faPause, faPlay, faRepeat, faShuffle, faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+	faBackwardStep,
+	faBars,
+	faChartLine,
+	faEllipsisVertical,
+	faEquals,
+	faForwardStep,
+	faHeart,
+	faMagnifyingGlass,
+	faPause,
+	faPlay,
+	faPlus,
+	faRepeat,
+	faShuffle,
+	faSort,
+	faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icon } from "@fortawesome/fontawesome-svg-core";
 import { v4 as uuidv4 } from "uuid";
@@ -78,6 +94,9 @@ function JavStation() {
 
 	// same cursor as used in backend
 	const [stationPosition, setStationPosition] = useState(0);
+	// -1 if inactive (reset), otherwise set to current station position before it is
+	// altered for smoother queue look
+	// const [shadowPosition, setShadowPosition] = useState(-1);
 
 	const [winWidth, setWinWidth] = useState(0);
 	const [winHeight, setWinHeight] = useState(0);
@@ -139,14 +158,13 @@ function JavStation() {
 		// setStationPaused(!stationPaused);
 	};
 
-	const sendStationSkipped = () => {
+	const sendStationSkipped = (offset = 1) => {
 		// offset = 0 only when stationRepeat[0] (repeatOne) is true
 		// !(sR[0] || sR[1]) checks if stationRepeat[0] (repeatOne) is true
 		// || sR[1] ensures that offset not affected by stationRepeat[0] (repeatOne) when both are true
 		// const offset = +!(stationRepeat[0] || stationRepeat[1]) || stationRepeat[1];
 
 		// wait..skip bypasses any repeat setting - Simon 2:25 AM :)
-		const offset = 1;
 		socket.emit("stationSkipped", offset);
 		// setStationPosition(stationPosition + offset);
 	};
@@ -206,6 +224,7 @@ function JavStation() {
 		if (!track) {
 			setQueueData([]);
 			setStationPosition(0);
+			// setShadowPosition(-1);
 		}
 	};
 
@@ -296,9 +315,18 @@ function JavStation() {
 		// trackStarted data == trackEnded data
 		// { id, position, track: { id, url, title, channel, thumbnail, durationMs, requester: { id, username, avatar } } }
 		const handleTrackStarted = (data) => {
-			setStationPosition(data.position);
+			const {
+				position,
+				track: { durationMs },
+			} = data;
+			// if (position !== stationPosition && mobStationQueueOption) {
+			// 	setShadowPosition(position - 1);
+			// 	console.log("SET SHADOW", position, stationPosition, position - 1)
+			// 	console.log(queueData);
+			// }
+			setStationPosition(position);
 			stationPositionMs.current = 0;
-			stationDurationMs.current = data.track.durationMs;
+			stationDurationMs.current = durationMs;
 			updateSlider(0);
 		};
 
@@ -387,7 +415,7 @@ function JavStation() {
 			trackDataTime.current.innerHTML = winWidth >= 1024 ? `${humanizeMs(stationPositionMs.current)} / ${humanizeMs(stationDurationMs.current)}` : humanizeMs(stationPositionMs.current);
 	};
 
-	// update slider position by user
+	// update slider position by user (sliding)
 	const handleSliderMouseDown = () => {
 		setSliderDragging(true);
 
@@ -405,7 +433,7 @@ function JavStation() {
 		}, 100);
 
 		const handleMouseMove = (event) => {
-			const mouseX = event.clientX;
+			const { clientX: mouseX } = event;
 			throttledHandleSliderMouseMove(mouseX);
 		};
 
@@ -421,6 +449,66 @@ function JavStation() {
 
 		document.addEventListener("mousemove", handleMouseMove);
 		document.addEventListener("mouseup", handleMouseUp);
+	};
+
+	// mobile touch to mimic mouseDown
+	const handleSliderTouchStart = (event) => {
+		setSliderDragging(true);
+
+		const containerRef = sliderContainerRef.current.getBoundingClientRect();
+		const containerWidth = containerRef.width;
+		const containerLeft = containerRef.left;
+		const containerRight = containerRef.right;
+
+		const touch = event.touches[0];
+		const initialTouchX = touch.clientX;
+
+		// throttled slider movement math to reduce "lag"
+		const throttledHandleSliderTouchMove = throttle((touchX) => {
+			if (touchX >= containerLeft && touchX <= containerRight) {
+				const newPosition = Math.max(0, Math.min(1, (touchX - containerLeft) / containerWidth)) * 100;
+				updateSlider(newPosition);
+			}
+		}, 100);
+
+		const handleTouchMove = (event) => {
+			const touch = event.touches[0];
+			const touchX = touch.clientX;
+			throttledHandleSliderTouchMove(touchX);
+		};
+
+		const handleTouchEnd = () => {
+			setSliderDragging(false);
+			document.removeEventListener("touchmove", handleTouchMove);
+			document.removeEventListener("touchend", handleTouchEnd);
+
+			const newPosition = Math.floor((sliderPosition.current * stationDurationMs.current) / 100);
+			stationPositionMs.current = newPosition;
+			socket.emit("stationSeek", newPosition);
+		};
+
+		document.addEventListener("touchmove", handleTouchMove);
+		document.addEventListener("touchend", handleTouchEnd);
+	};
+
+	// update slider position by clicking
+	const handleSliderMouseClick = (event) => {
+		const { clientX: mouseX } = event;
+		console.log(mouseX);
+
+		const containerRef = sliderContainerRef.current.getBoundingClientRect();
+		const containerWidth = containerRef.width;
+		const containerLeft = containerRef.left;
+		const containerRight = containerRef.right;
+
+		if (mouseX >= containerLeft && mouseX <= containerRight) {
+			const newPosition = Math.max(0, Math.min(1, (mouseX - containerLeft) / containerWidth)) * 100;
+			updateSlider(newPosition);
+
+			const newPositionMs = Math.floor((sliderPosition.current * stationDurationMs.current) / 100);
+			stationPositionMs.current = newPositionMs;
+			socket.emit("stationSeek", newPositionMs);
+		}
 	};
 
 	// update slider position as song is played
@@ -454,10 +542,6 @@ function JavStation() {
 				}, 500);
 			}
 		};
-
-		// if (plusRef.current) {
-		// 	developDynamicAnimation(plusRef);
-		// }
 
 		window.addEventListener("resize", handleResize);
 		document.addEventListener("click", handleClickOutside);
@@ -568,7 +652,7 @@ function JavStation() {
 									<div key={item.id} className={`d-flex position-relative ${clsx({ [styles.activeGuild]: item.id === stationId })} ${styles.mutualContainer}`}>
 										<div className={`d-flex text-center align-items-center justify-content-center ${styles.mutualWrapper}`}>
 											<Link className={styles.iconContainer} href={`/javstation/${item.id}`} target="_self">
-										<div className={styles.guildPill} />
+												<div className={styles.guildPill} />
 												<div className={styles.iconWrapper}>
 													<span className={`align-self-center ${styles.baseToolTip} ${styles.toolTip} ${styles.toolTipLg} ${utilStyles.fontType12}`}>{item.name}</span>
 													<Image alt={item.name} src={guildIcon(item.id, item.icon)} quality={100} width={48} height={48} className={styles.icon} />
@@ -590,10 +674,9 @@ function JavStation() {
 		return (
 			<div className={`d-flex overflow-auto justify-content-around h-100 mb-5 ${styles.stationQueueWrapper}`}>
 				<div className="d-flex flex-column align-items-center m-auto">
-					<Span Px={200}>
-						<Image alt="emptyQueue" src="/images/emptyQueue.png" quality={100} className="w-100 h-100 d-block" width={200} height={200} />
-					</Span>
+					<Image alt="emptyQueue" src="/images/emptyQueue.png" quality={100} className="w-50 h-100 d-block" width={400} height={200} />
 					{/* <span no songs in queue etc  */}
+					<span className={`${utilStyles.colorAdjust2} ${utilStyles.fontType6}`}>No songs in queue</span>
 				</div>
 			</div>
 		);
@@ -601,7 +684,10 @@ function JavStation() {
 
 	const stationGuildOptions = [{ id: "stationGuildOptionFavorite", label: "Favorite", icon: faHeart }];
 
-	const stationOptions = [{ id: "stationOptionSearch", label: "Search", icon: faMagnifyingGlass }];
+	const stationOptions = [
+		{ id: "stationOptionSearch", label: "Search", icon: faMagnifyingGlass },
+		// { id: "stationOptionRemove", label: "Remove", icon: faXmark, colorAdjust: "#d15e8f"},
+	];
 
 	const createMobStationOptions = () => {
 		const options = mobStationGuildOption ? stationGuildOptions : stationOptions;
@@ -641,7 +727,7 @@ function JavStation() {
 							<div className="col">
 								<div className="d-flex">
 									<div className={`d-flex align-items-center justify-content-center ${utilStyles.mn36px}`}>
-										<FontAwesomeIcon icon={item.icon} />
+										<FontAwesomeIcon icon={item.icon} style={{ color: item.colorAdjust }} />
 									</div>
 									<div className={`align-self-center my-auto px-3 ${utilStyles.fontType2} ${styles.WIP}`}>{item.label}</div>
 								</div>
@@ -687,62 +773,113 @@ function JavStation() {
 									setStationPlus(false);
 									setMobStationQueueOption(false);
 									setMobStationLyricOptions(false);
+									// setShadowPosition(-1);
 								}, 500);
 							});
 					}}
+					onLoad={dynamicTabAnimation()}
 				>
-					<div className="d-flex justify-content-center justify-space-between mx-auto px-3 text-center text-uppercase">
+					<div className={`p-2 ${styles.clipboardCopyAlert}`} role="alert">
+						<span className={`${utilStyles.colorAdjust2} ${utilStyles.fontType2}`}>Copied to clipboard</span>
+					</div>
+					<div className={`d-flex justify-content-center mx-3 px-auto text-center text-uppercase ${styles.tabList}`} role="tablist">
 						{stationPlusOptions.map((item, index) => {
 							const optionActive = (index === 0 && mobStationQueueOption) || (index === 1 && mobStationLyricOption);
 							return (
-								<div
+								<button
 									key={item.id}
 									className={`d-flex mt-2 py-2 w-100 overflow-hidden ${utilStyles.colorAdjust4} ${styles.mobStationPlusOptions} ${clsx({
 										[styles.activeContainer]: optionActive,
 										[utilStyles.colorAdjust3]: optionActive,
 									})}`}
+									role="tab"
+									aria-selected={`${optionActive}`}
 									onClick={(event) => {
 										materializeEffect(event, effectType.radial);
 										setStationPlus(true);
 										setStationPlusDeactive(false);
 										setMobStationQueueOption(index === 0);
 										setMobStationLyricOptions(index === 1);
+										// setShadowPosition(-1);
 									}}
 								>
-									<span className={`text-center align-self-center m-auto ${utilStyles.fontType2} ${clsx({ [styles.WIP]: index === 1 })}`}>{item.label}</span>
-								</div>
+									<span className={`text-center text-uppercase align-self-center m-auto ${utilStyles.fontType2} ${clsx({ [styles.WIP]: index === 1 })}`}>{item.label}</span>
+								</button>
 							);
 						})}
 					</div>
 					{stationPlus && (
-						<div className={`container d-flex flex-column py-0 px-0 align-items-center ${utilStyles.z999} ${styles.mobStationPlusContainer}`}>
-							{mobStationQueueOption &&
-								queueData.map((item, index) => {
-									if (index < stationPosition && !stationRepeat[1]) return;
+						<div className={`container d-flex flex-column pb-3 px-0 align-items-center ${utilStyles.z999} ${styles.mobStationPlusContainer}`}>
+							{mobStationQueueOption && (
+								<>
+									<div className="d-flex w-100 justify-content-between p-3">
+										<div className="d-flex flex-column">
+											<span className={`${utilStyles.fontType2} ${utilStyles.colorAdjust1}`}>Playing from</span>
+											<span className={`${utilStyles.fontType2}`}>Your Queue</span>
+										</div>
+										<button className={`d-flex align-items-center justify-content-center bg-transparent py-2 px-3 overflow-hidden ${styles.mobStationQueueSave} rounded-lg`}>
+											<span
+												className={`d-flex align-items-center ${utilStyles.fontType2} ${utilStyles.colorAdjust3} ${styles.WIP}`}
+												onClick={(event) => materializeEffect(event, effectType.radial)}
+											>
+												<FontAwesomeIcon icon={faPlus} width={16} height={16} className={`mr-2 ${utilStyles.colorAdjust2}`} />
+												Save
+											</span>
+										</button>
+									</div>
+									{queueData.map((item, index) => {
+										//  && shadowPosition === -1) || (shadowPosition !== -1 && index < shadowPosition
+										if ((!stationRepeat[1] && index < stationPosition)) return;
+										const colorAdjust = index === stationPosition ? utilStyles.colorAdjust4 : utilStyles.colorAdjust1;
 
-									return (
-										<div
-											key={item.id}
-											className={`row w-100 py-2 mx-auto ${styles.mobStationOption} ${clsx({ ["bg-transparent"]: index != stationPosition })}`}
-											onClick={(event) => materializeEffect(event, effectType.radial)}
-										>
-											<div className="col">
-												<div className="d-flex">
-													<div className={`d-flex align-items-center justify-content-center ${utilStyles.mn36px} ${styles.mobStationOptionWrapper}`}>
-														<img alt={"thumbnail"} src={item.thumbnail} className="rounded img-fluid" />
-													</div>
-													<div className="align-self-center my-auto px-3">
-														<div className="d-flex flex-column">
-															{/* make sure these 2 are centered vertically */}
-															<span className={utilStyles.fontType2}>{item.title}</span>
-															<span className={`${utilStyles.fontType2} ${utilStyles.colorAdjust4}`}>{item.channel}</span>
+										return (
+											<div
+												key={item.id}
+												className={`row w-100 py-2 mx-auto ${styles.mobStationOption} ${clsx({ ["bg-transparent"]: index != stationPosition })}`}
+												onClick={(event) => {
+													materializeEffect(event, effectType.radial);
+													if (index !== stationPosition) {
+														// setShadowPosition(stationPosition);
+														sendStationSkipped(index - stationPosition);
+													}
+													// copy link to clipboard and trigger alert
+													// navigator.clipboard.writeText(item.url);
+													// const alert = document.querySelector("[role=alert]");
+													// if (!alert) return;
+													// triggerAnimationClass(alert, styles.show, 2000);
+												}}
+											>
+												<div className="col">
+													<div className="d-flex align-items-center justify-content-start">
+														<div className={`d-flex my-auto ${utilStyles.m48px} ${styles.mobStationOptionWrapper}`}>
+															<Image alt={"thumbnail"} src={item.thumbnail} width={64} height={64} className="rounded img-fluid" />
 														</div>
+														<div className="align-self-center my-auto px-3">
+															<div className="d-flex flex-column">
+																{/* make sure these 2 are centered vertically */}
+																{/* item.title ${clsx({ [utilStyles.colorAdjust1]: index < stationPosition })} */}
+																<span className={utilStyles.fontType1}>{item.title}</span>
+																<div className={`d-flex w-100 ${utilStyles.fontType1} ${colorAdjust}`}>
+																	<span className={utilStyles.truncate}>{item.channel}</span>
+																	<div className={`mx-1 align-self-center ${styles.stationTrackInfoDivider} ${colorAdjust}`} />
+																	<span className={`${colorAdjust}`}>{humanizeMs(item.durationMs)}</span>
+																</div>
+															</div>
+														</div>
+														{/* index > shadowPosition && */}
+														{index !== stationPosition && (
+															<div className="ml-auto">
+																<FontAwesomeIcon icon={faEquals} width={16} height={16} />
+															</div>
+														)}
 													</div>
 												</div>
 											</div>
-										</div>
-									);
-								})}
+										);
+									})}
+								</>
+							)}
+							{mobStationLyricOption && <></>}
 						</div>
 					)}
 				</div>
@@ -1196,12 +1333,12 @@ function JavStation() {
 
 	const createSlider = () => {
 		return (
-			<div className={styles.stationControllerSlider} ref={sliderContainerRef}>
+			<div className={`${styles.stationControllerSlider} ${clsx({ [styles.mobSlider]: winWidth < 768 })}`} ref={sliderContainerRef}>
 				<div className={styles.sliderInputRange} aria-disabled="false">
 					<span className={styles.inputRangeMin}>
 						<span className={styles.inputRange}>0</span>
 					</span>
-					<div className={styles.inputSliderContainer}>
+					<div className={styles.inputSliderContainer} onClick={handleSliderMouseClick}>
 						<div className={`${styles.inputSliderContainer} ${styles.activeEffect}`} ref={inputContainerRef} style={{ left: "0%" }} />
 						<span className={styles.inputLabelContainer} ref={labelContainerRef} style={{ position: "absolute" }}>
 							<span className={styles.inputLabel}>
@@ -1221,7 +1358,7 @@ function JavStation() {
 					<span className={styles.inputRangeMax}>
 						<span className={styles.inputRange}>{stationDurationMs.current}</span>
 					</span>
-					<div className={styles.inputSlider} ref={inputSliderRef} style={{}} onMouseDown={handleSliderMouseDown} />
+					<div className={styles.inputSlider} ref={inputSliderRef} style={{}} onMouseDown={handleSliderMouseDown} onTouchStart={handleSliderTouchStart} />
 				</div>
 			</div>
 		);

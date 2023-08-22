@@ -54,14 +54,14 @@ function JavStudio() {
 						<h1 className={`mt-3 ${utilStyles.fontType9}`}>Welcome to JavKing</h1>
 					</div>
 					<div className={`w-50 text-center d-inline-block mt-3 ${studioStyles.authenticationComponent}`}>
-						<h2 className={`${utilStyles.fontType13}`}>Login to manage your studio</h2>
+						<h2 className={`${utilStyles.fontType13} ${utilStyles.colorAdjust2}`}>Login to manage your studio</h2>
 						<div className="mt-4 d-inline-block">
 							<a className={`d-inline-block ${studioStyles.roomTag} ${studioStyles.roomTagAdjust}`} href={LoginURL(router.asPath)}>
 								<span className="d-flex justify-content-center align-items-center">
 									<span className="mr-1">
 										<FontAwesomeIcon icon={icon(faDiscord)} width={16} height={16} />
 									</span>
-									<span className="text-uppercase">Login with Discord</span>
+									<span className={`text-uppercase ${utilStyles.defaultFamily}`}>Login with Discord</span>
 								</span>
 							</a>
 						</div>

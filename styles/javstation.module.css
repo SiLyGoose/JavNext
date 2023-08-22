@@ -188,8 +188,8 @@
 }
 
 .activeGuild .guildPill {
-	background-color: #d185cd!important;
-	transform: scaleY(1)!important;
+	background-color: #d185cd !important;
+	transform: scaleY(1) !important;
 }
 
 .mutualWrapper {
@@ -254,6 +254,10 @@
 	overflow: hidden;
 }
 
+.mobStationPlusOptions {
+	background-color: transparent;
+}
+
 .mobGuildListContainer {
 	margin-right: 3px;
 }
@@ -269,7 +273,8 @@
 }
 
 .mobStationPlusOptions .btnFlashRadiate,
-.mobStationOption .btnFlashRadiate {
+.mobStationOption .btnFlashRadiate,
+.mobStationQueueSave .btnFlashRadiate {
 	will-change: opacity, transform;
 	position: absolute; /* The absolute position we mentioned earlier */
 	border-radius: 50%;
@@ -389,7 +394,7 @@
 }
 
 .stationCurrentTrack {
-	background: #2c2a31!important;
+	background: #2c2a31 !important;
 	border-radius: 4px 0 0 4px;
 }
 
@@ -496,8 +501,20 @@ a.stationTrackTitle:hover {
 	transition: 0.2s ease;
 }
 
-.stationControllerSlider:hover .inputSlider {
+.stationControllerSlider:hover .inputSlider,
+.mobSlider .inputSlider {
 	transform: translate(-50%, calc(-50% - 2px)) scale(1);
+}
+
+.clipboardCopyAlert {
+	position: absolute;
+	top: 85%;
+	left: 50%;
+	transform: translate(-50%);
+	background-color: #473c54;
+	border-radius: 10px;
+	opacity: 0;
+	animation: hide 0.5s ease-in-out;
 }
 
 .baseToolTip {
@@ -608,10 +625,6 @@ a.stationTrackTitle:hover {
 	.stationContainer {
 		color: white;
 	}
-
-	.stationControllerSlider .inputSliderContainer {
-		background-color: #ada5b6;
-	}
 }
 
 @media screen and (max-width: 425px) and (min-height: 800px) {
@@ -674,7 +687,7 @@ a.stationTrackTitle:hover {
 	.iconContainer:hover .toolTip {
 		display: inline-block;
 	}
-	
+
 	.iconContainer:hover .guildPill {
 		transform: scaleY(0.5);
 		background-color: white;
@@ -797,11 +810,16 @@ a.stationTrackTitle:hover {
 	.stationTrackInfoDivider {
 		height: 4px;
 		width: 4px;
-		border-radius: 50%;
-		background-color: #d2cfdf;
 		margin: 0 12px;
-		display: inline-block;
 	}
+}
+
+.stationTrackInfoDivider {
+	height: 3px;
+	width: 3px;
+	border-radius: 50%;
+	background-color: #ada5b6;
+	display: inline-block;
 }
 
 .mobStationUserIcon {
@@ -823,12 +841,6 @@ a.stationTrackTitle:hover {
 
 .mobStationOption .mobStationOptionWrapper {
 	overflow: hidden;
-}
-
-.mobStationOption .mobStationOptionWrapper img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
 }
 
 .mobGuild {
@@ -856,8 +868,7 @@ a.stationTrackTitle:hover {
 	animation: pullUp 0.5s ease-in-out;
 }
 
-.mobStationPlusOptionsContainer.activeContainer::before,
-.mobStationPlusOptionsContainer.activeOptionsContainer::before {
+.mobStationPlusOptionsContainer::before {
 	will-change: transform;
 	position: absolute;
 	content: "";
@@ -872,7 +883,7 @@ a.stationTrackTitle:hover {
 	bottom: 0 !important;
 }
 
-.mobStationPlusOptions.activeContainer::after {
+/* .mobStationPlusOptions.activeContainer::after {
 	will-change: transform;
 	position: absolute;
 	content: "";
@@ -882,10 +893,43 @@ a.stationTrackTitle:hover {
 	left: 50%;
 	transform: translateX(-50%);
 	background-color: white;
+} */
+
+.activeOptionsContainer > .tabList {
+	position: relative;
+	display: flex;
+	border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.activeOptionsContainer > .tabList::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 2px;
+	width: 100%;
+	scale: var(--_width, 0.5) 1;
+	translate: var(--_left, 0) 0;
+	transform-origin: left;
+	transition: scale 200ms, translate 200ms;
+	background: white;
+}
+
+.mobStationPlusContainer::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	width: calc(100% - 6px);
+	border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .mobStationPlusContainer .mobStationOption {
 	background-color: var(--mob-palette-vibrant);
+}
+
+.mobStationQueueSave {
+	background-color: rgba(255, 255, 255, 0.1)!important;
 }
 
 .mobStationContainer.activeContainer {
@@ -905,7 +949,6 @@ a.stationTrackTitle:hover {
 	height: 100vh;
 	will-change: transform;
 	animation: dynamicPullUp 0.5s ease-in-out;
-	background-color: var(--mob-palette-vibrant);
 }
 
 .mobStationContainer.activeContainer.stationOptionPlus {
@@ -928,7 +971,7 @@ a.stationTrackTitle:hover {
 }
 
 .mobStationPlusOptionsContainer.deactiveOptionsContainer {
-	will-change: transform;
+	will-change: transform, background-color;
 	animation: dynamicPullDown 0.5s ease-in-out;
 }
 
@@ -990,6 +1033,12 @@ a.stationTrackTitle:hover {
 	}
 }
 
+.hide {
+	will-change: opacity;
+	opacity: 0;
+	animation: hide 0.2s ease-in-out;
+}
+
 @keyframes hide {
 	from {
 		opacity: 1;
@@ -998,6 +1047,12 @@ a.stationTrackTitle:hover {
 	to {
 		opacity: 0;
 	}
+}
+
+.show {
+	will-change: opacity;
+	opacity: 1;
+	animation: show 0.5s ease-in-out;
 }
 
 @keyframes show {
@@ -1056,6 +1111,7 @@ a.stationTrackTitle:hover {
 .WIP::after {
 	content: "WIP";
 	display: inline-block;
+	color: #fff;
 	background-color: #d15e8f;
 	border-radius: 5px;
 	padding: 1px 5px 1px 5px;

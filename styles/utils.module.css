@@ -115,6 +115,7 @@
 	font-style: normal;
 	letter-spacing: 3.2px;
 }
+
 .colorAdjust1 {
 	color: #ada5b6 !important;
 }
@@ -131,7 +132,6 @@
 	color: white !important;
 }
 
-
 .truncate {
 	display: inline-block;
 	max-width: 200px; /* Adjust the maximum width as needed */
@@ -140,7 +140,7 @@
 	text-overflow: ellipsis;
 }
 
-.line-clamp {
+.lineClamp1 {
 	display: -webkit-box;
 	-webkit-line-clamp: 2; /* truncates at the second line */
 	-webkit-box-orient: vertical;
@@ -204,6 +204,17 @@
 	min-height: 36px!important;
 }
 
+.mx36px {
+	max-width: 36px!important;
+	max-height: 36px!important;
+}
+
+.m48px {
+	max-width: 48px!important;
+	min-width: 48px!important;
+	max-height: 48px!important;
+	min-height: 48px!important;
+}
 
 .hidden {
 	opacity: 0;
